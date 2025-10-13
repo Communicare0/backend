@@ -62,3 +62,4 @@ out/
 /nbdist/
 /nbproject/private/
 
+.env

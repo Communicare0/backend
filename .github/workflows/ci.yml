@@ -8,6 +8,22 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: appdb
+        ports:
+          - 5432:5432
+        # healthcheck가 통과될 때까지 Actions가 기다려줍니다.
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,6 +41,12 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build (compile + test)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:${{ job.services.postgres.ports[5432] }}/appdb
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
+          # 필요시: SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          # 필요시: SPRING_SQL_INIT_MODE: always
         run: ./gradlew build --no-daemon
 
       - name: Upload test report (always)
@@ -36,3 +58,7 @@ jobs:
             build/test-results/test
             build/reports/tests/test
           if-no-files-found: ignore
+
+      - name: Dump postgres logs on failure
+        if: failure()
+        run: docker logs ${{ job.services.postgres.id }} || true

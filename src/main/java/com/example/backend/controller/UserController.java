@@ -1,7 +1,7 @@
-package com.example.v1.controller;
+package com.example.backend.controller;
 
-import com.example.v1.entity.User;
-import com.example.v1.repository.UserRepository;
+import com.example.backend.entity.User;
+import com.example.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "timetables",
+@Table(name = "timetables", schema = "communicare",
   indexes = {
     @Index(name="ix_timetable_user", columnList = "user_id,day_of_week")
   })

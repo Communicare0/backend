@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /** 4. Post */
 @Entity
-@Table(name = "posts",
+@Table(name = "posts", schema = "communicare",
   indexes = {
     @Index(name="ix_post_author", columnList = "author_id")
   })

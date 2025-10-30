@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(
-  name = "post_likes",
+  name = "post_likes", schema = "communicare",
   uniqueConstraints = {
     @UniqueConstraint(name = "uk_post_like_user_post", columnNames = {"user_id", "post_id"})
   },

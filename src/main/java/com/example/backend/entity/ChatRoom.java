@@ -7,7 +7,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "chat_rooms")
+@Table(name = "chat_rooms", schema = "communicare")
 public class ChatRoom {
   @Id
   @Column(name="chat_room_id", columnDefinition = "uuid")

@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "reports",
+@Table(name = "reports", schema = "communicare",
   indexes = {
     @Index(name="ix_report_reporter", columnList = "reporter_id"),
     @Index(name="ix_report_target", columnList = "target_type,target_id")

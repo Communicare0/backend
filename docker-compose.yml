@@ -17,16 +17,16 @@ services:
       timeout: 5s
       retries: 5
 
-  pgadmin: # 선택사항(웹으로 DB 보기)
-    image: dpage/pgadmin4:8
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin1234
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
+#  pgadmin: # 선택사항(웹으로 DB 보기)
+#    image: dpage/pgadmin4:8
+#    container_name: pgadmin
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@example.com
+#      PGADMIN_DEFAULT_PASSWORD: admin1234
+#    ports:
+#      - "5050:80"
+#    depends_on:
+#      - postgres
 
 volumes:
   pg_data:

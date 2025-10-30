@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /** 2. Friendship */
 @Entity
-@Table(name = "friendships",
+@Table(name = "friendships", schema = "communicare",
   uniqueConstraints = {
     @UniqueConstraint(name="uk_friend_pair", columnNames = {"requester_id","addressee_id"})
   },

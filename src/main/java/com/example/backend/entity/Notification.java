@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "notifications",
+@Table(name = "notifications", schema = "communicare",
   indexes = {
     @Index(name="ix_notification_receiver", columnList = "receiver_id")
   })

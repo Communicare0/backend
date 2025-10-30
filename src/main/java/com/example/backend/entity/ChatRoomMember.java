@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "chat_room_members",
+@Table(name = "chat_room_members", schema = "communicare",
   uniqueConstraints = {
     @UniqueConstraint(name="uk_room_user", columnNames = {"chat_room_id","user_id"})
   },

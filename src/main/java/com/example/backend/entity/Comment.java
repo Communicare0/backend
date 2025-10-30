@@ -8,7 +8,7 @@ import java.util.UUID;
 
 /** 3. Comment */
 @Entity
-@Table(name = "comments",
+@Table(name = "comments", schema = "communicare",
   indexes = {
     @Index(name="ix_comment_post", columnList = "post_id"),
     @Index(name="ix_comment_author", columnList = "author_id"),

@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "restaurants")
+@Table(name = "restaurants", schema = "communicare")
 public class Restaurant {
   @Id
   @Column(name="restaurant_id", columnDefinition = "uuid")

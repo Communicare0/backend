@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "chat_messages",
+@Table(name = "chat_messages", schema = "communicare",
   indexes = {
     @Index(name="ix_msg_room", columnList = "chat_room_id"),
     @Index(name="ix_msg_sender", columnList = "sender_id")

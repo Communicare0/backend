@@ -3,9 +3,16 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/mydb
+    url: jdbc:postgresql://localhost:5432/communicare
     username: postgres
     password: postgres
+  flyway:
+    enabled: true                 # (기본 true) 부팅 시 자동 마이그레이션
+    locations: classpath:db/migration
+    schemas: communicare          # Flyway가 실행할 스키마 지정
+    baseline-on-migrate: true     # 기존 DB에 테이블이 있을 수도 있으면 true 권장
+    validate-on-migrate: true
+    clean-disabled: false          # 실서버 안전장치: clean 금지
   jpa:
     hibernate:
       ddl-auto: update   # 개발용: 엔티티 변경 시 테이블 자동 갱신
@@ -13,3 +20,4 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_schema: communicare

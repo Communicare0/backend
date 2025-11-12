@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/communicare
+    url: jdbc:postgresql://postgres:5432/communicare
     username: postgres
     password: postgres
   flyway:
@@ -15,7 +15,7 @@ spring:
     clean-disabled: false          # 실서버 안전장치: clean 금지
   jpa:
     hibernate:
-      ddl-auto: update   # 개발용: 엔티티 변경 시 테이블 자동 갱신
+      ddl-auto: validate   # Flyway와 함께 사용시 검증만 수행
     show-sql: true       # 콘솔에 실행 SQL 출력
     properties:
       hibernate:

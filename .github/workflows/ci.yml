@@ -42,7 +42,7 @@ jobs:
 
       - name: Build (compile + test)
         env:
-#          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:${{ job.services.postgres.ports[5432] }}/communicare
+#          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/communicare
 #          SPRING_DATASOURCE_USERNAME: postgres
 #          SPRING_DATASOURCE_PASSWORD: postgres
           SPRING_PROFILES_ACTIVE: test

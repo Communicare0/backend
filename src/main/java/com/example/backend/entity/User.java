@@ -21,6 +21,9 @@ public class User {
   @Column(length = 255, nullable = false)
   private String email;
 
+  @Column(length = 255, nullable = false)
+  private String password;
+
   @Column(length = 50, nullable = false)
   private String nickname;
 
@@ -41,6 +44,10 @@ public class User {
 
   @Column(name="friend_code", length = 10, nullable = false)
   private String friendCode;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private UserRole role = UserRole.USER;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

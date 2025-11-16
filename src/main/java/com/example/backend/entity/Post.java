@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-/** 4. Post */
 @Entity
 @Table(name = "posts", schema = "communicare",
   indexes = {
@@ -18,8 +17,7 @@ public class Post {
   private UUID postId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name="author_id", nullable=false,
-    foreignKey=@ForeignKey(name="fk_post_author"))
+  @JoinColumn(name="author_id", nullable=false, foreignKey=@ForeignKey(name="fk_post_author"))
   private User author;
 
   @Column(columnDefinition = "text")

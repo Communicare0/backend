@@ -2,6 +2,10 @@ package com.example.backend.entity;
 
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -13,10 +17,14 @@ import java.util.UUID;
     @UniqueConstraint(name="uk_user_nickname", columnNames = "nickname"),
     @UniqueConstraint(name="uk_user_friend_code", columnNames = "friend_code")
   })
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "user_id")
-  private Long userId;
+  @Id
+  @Column(name = "user_id", columnDefinition = "UUID")
+  private UUID userId;
 
   @Column(length = 255, nullable = false)
   private String email;
@@ -47,10 +55,12 @@ public class User {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
+  @Builder.Default
   private UserRole role = UserRole.USER;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
+  @Builder.Default
   private AccountStatus status = AccountStatus.ACTIVE;
 
   @Column(nullable = false)

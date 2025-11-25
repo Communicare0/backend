@@ -21,6 +21,7 @@ spring:
       hibernate:
         format_sql: true
         default_schema: communicare
+        jdbc.time_zone: UTC
 # Swagger/OpenAPI Configuration
 springdoc:
   api-docs:

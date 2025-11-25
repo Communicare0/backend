@@ -2,57 +2,92 @@ package com.example.backend.entity;
 
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users", schema = "communicare",
-  uniqueConstraints = {
-    @UniqueConstraint(name="uk_user_email", columnNames = "email"),
-    @UniqueConstraint(name="uk_user_nickname", columnNames = "nickname"),
-    @UniqueConstraint(name="uk_user_friend_code", columnNames = "friend_code")
-  })
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_user_nickname", columnNames = "nickname"),
+        @UniqueConstraint(name = "uk_user_friend_code", columnNames = "friend_code")
+    })
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "user_id")
-  private Long userId;
+    @Id
+    @Column(name = "user_id", columnDefinition = "UUID")
+    private UUID userId;
 
-  @Column(length = 255, nullable = false)
-  private String email;
+    @Column(length = 255)//, nullable = false)
+    private String email;
 
-  @Column(length = 50, nullable = false)
-  private String nickname;
+    @Column(length = 255)//, nullable = false)
+    private String password;
 
-  @Column(length = 100)
-  private String department;
+    @Column(length = 50)//, nullable = false)
+    private String nickname;
 
-  @Column(length = 20)
-  private String studentId;
+    @Column(length = 100)
+    private String department;
 
-  @Column(length = 50)
-  private String nationality;
+    @Column(length = 20)
+    private String studentId;
 
-  @Column(length = 10)
-  private String language;
+    @Column(length = 50)
+    private String nationality;
 
-  @Column(length = 2048)
-  private String profileImageUrl;
+    @Column(length = 10)
+    private String language;
 
-  @Column(name="friend_code", length = 10, nullable = false)
-  private String friendCode;
+    @Column(length = 2048)
+    private String profileImageUrl;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private AccountStatus status = AccountStatus.ACTIVE;
+    @Column(name="friend_code", length = 10)//, nullable = false)
+    private String friendCode;
 
-  @Column(nullable = false)
-  private OffsetDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 
-  @Column(nullable = false)
-  private OffsetDateTime updatedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private AccountStatus status = AccountStatus.ACTIVE;
 
-  private OffsetDateTime deletedAt;
+    @Column(nullable = false)
+    private OffsetDateTime createdAt;
 
-  // getters/setters ...
+    @Column(nullable = false)
+    private OffsetDateTime updatedAt;
+
+    private OffsetDateTime deletedAt;
+
+
+    @PrePersist
+    public void prePersist() {
+        OffsetDateTime now = OffsetDateTime.now();
+        if (userId == null) {
+            userId = UUID.randomUUID();
+        }
+        if (createdAt == null) {
+            createdAt = now;
+        }
+        if (updatedAt == null) {
+            updatedAt = now;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = OffsetDateTime.now();
+    }
 }

@@ -139,8 +139,8 @@ public class PostController {
             post.setContent(createPostRequest.getContent());
             post.setCategory(createPostRequest.getCategory());
 
-            Post createPost = postService.createPost(post);
-            PostResponse postResponse = PostResponse.fromEntity(createPost);
+            Post createdPost = postService.createPost(userId, post);
+            PostResponse postResponse = PostResponse.fromEntity(createdPost);
             return ResponseEntity.status(HttpStatus.CREATED).body(postResponse);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

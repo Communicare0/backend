@@ -1,6 +1,8 @@
 package com.example.backend.service;
 import com.example.backend.entity.Post;
+import com.example.backend.entity.User;
 import com.example.backend.repository.PostRepository;
+import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -9,9 +11,11 @@ import java.util.UUID;
 
 @Service
 public class PostServiceImpl implements PostService {
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(UserRepository userRepository, PostRepository postRepository) {
+        this.userRepository = userRepository;
         this.postRepository = postRepository;
     }
 
@@ -31,7 +35,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post createPost(Post post) {
+    public Post createPost(UUID userId, Post post) {
+        User user = userRepository.getReferenceById(userId);
+        post.setAuthor(user);
+
         return postRepository.save(post);
     }
 

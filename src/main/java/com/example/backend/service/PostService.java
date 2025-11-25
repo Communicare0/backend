@@ -16,7 +16,7 @@ public interface PostService {
     List<Post> findPostsByCategory(String category);
 
     @Transactional
-    Post createPost(Post post);
+    Post createPost(UUID userId, Post post);
 
     @Transactional
     Post updatePost(Post post);

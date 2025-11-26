@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-@Service
 public interface PostService {
     Post getPostById(UUID id);
 
@@ -15,12 +14,9 @@ public interface PostService {
 
     List<Post> findPostsByCategory(String category);
 
-    @Transactional
     Post createPost(UUID userId, Post post);
 
-    @Transactional
     Post updatePost(Post post);
 
-    @Transactional
     void deletePost(UUID id);
 }

@@ -4,6 +4,7 @@ import com.example.backend.entity.User;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public Post createPost(UUID userId, Post post) {
         User user = userRepository.getReferenceById(userId);
         post.setAuthor(user);
@@ -43,11 +45,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public Post updatePost(Post post) {
         return postRepository.save(post);
     }
 
     @Override
+    @Transactional
     public void deletePost(UUID id) {
         postRepository.deleteById(id);
     }

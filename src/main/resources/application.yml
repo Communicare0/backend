@@ -1,27 +1,32 @@
-server:
-  port: 8080
-
 spring:
+  application:
+    name: backend
+  profiles:
+    active: local   # 기본은 local, Docker/Render에서는 환경변수로 override 가능
+
   datasource:
     url: jdbc:postgresql://postgres:5432/communicare
     username: postgres
     password: postgres
+
   flyway:
     enabled: true                 # (기본 true) 부팅 시 자동 마이그레이션
     locations: classpath:db/migration
     schemas: communicare          # Flyway가 실행할 스키마 지정
     baseline-on-migrate: true     # 기존 DB에 테이블이 있을 수도 있으면 true 권장
     validate-on-migrate: true
-    clean-disabled: false          # 실서버 안전장치: clean 금지
+    clean-disabled: false         # 실서버 안전장치: clean 금지
+
   jpa:
     hibernate:
-      ddl-auto: validate   # Flyway와 함께 사용시 검증만 수행
-    show-sql: true       # 콘솔에 실행 SQL 출력
+      ddl-auto: validate          # Flyway와 함께 사용시 검증만 수행
+    show-sql: true                # 콘솔에 실행 SQL 출력
     properties:
       hibernate:
         format_sql: true
         default_schema: communicare
         jdbc.time_zone: UTC
+
 # Swagger/OpenAPI Configuration
 springdoc:
   api-docs:

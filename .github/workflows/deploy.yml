@@ -1,0 +1,24 @@
+name: Deploy to Home Server
+
+on:
+  push:
+    branches: [ "main" ]   # main에 푸시될 때마다 배포
+
+jobs:
+  deploy:
+    runs-on: [ self-hosted, linux, x64 ]  # + 선택: 뒤에 너가 설정한 label도 추가 가능
+    # 예: runs-on: [ self-hosted, backend ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show current directory
+        run: |
+          pwd
+          ls
+
+      - name: Docker compose up
+        run: |
+          docker compose pull || true
+          docker compose up -d --build

@@ -4,8 +4,8 @@ import com.example.backend.dto.request.CreatePostRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.dto.response.PostResponse;
 import com.example.backend.entity.Post;
-import com.example.backend.entity.User;
 import com.example.backend.entity.enums.PostCategory;
+import com.example.backend.entity.User;
 import com.example.backend.service.PostService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -169,8 +169,7 @@ class PostControllerTest {
         updatedPost.setContent("수정된 내용");
         updatedPost.setCategory(PostCategory.GENERAL);
 
-        when(postService.getPostById(testPostId)).thenReturn(testPost);
-        when(postService.updatePost(any(Post.class))).thenReturn(updatedPost);
+        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +195,7 @@ class PostControllerTest {
         updatedPost.setCategory(PostCategory.GENERAL);
 
         when(postService.getPostById(testPostId)).thenReturn(testPost);
-        when(postService.updatePost(any(Post.class))).thenReturn(updatedPost);
+        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -222,7 +221,7 @@ class PostControllerTest {
         updatedPost.setCategory(PostCategory.GENERAL);
 
         when(postService.getPostById(testPostId)).thenReturn(testPost);
-        when(postService.updatePost(any(Post.class))).thenReturn(updatedPost);
+        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)

@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.request.CreatePostRequest;
+import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.entity.Post;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +16,9 @@ public interface PostService {
 
     List<Post> findPostsByCategory(String category);
 
-    Post createPost(UUID userId, Post post);
+    Post createPost(UUID userId, CreatePostRequest createPostRequest);
 
-    Post updatePost(Post post);
+    Post updatePost(UUID postId, UpdatePostRequest updatePostRequest);
 
     void deletePost(UUID id);
 }

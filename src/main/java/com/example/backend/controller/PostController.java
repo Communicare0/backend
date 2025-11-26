@@ -4,6 +4,7 @@ import com.example.backend.dto.request.CreatePostRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.dto.response.PostResponse;
 import com.example.backend.entity.Post;
+import com.example.backend.entity.enums.PostCategory;
 import com.example.backend.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -134,12 +135,8 @@ public class PostController {
             if (createPostRequest.getTitle() == null || createPostRequest.getContent() == null || createPostRequest.getCategory() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
-            Post post = new Post();
-            post.setTitle(createPostRequest.getTitle());
-            post.setContent(createPostRequest.getContent());
-            post.setCategory(createPostRequest.getCategory());
 
-            Post createdPost = postService.createPost(userId, post);
+            Post createdPost = postService.createPost(userId, createPostRequest);
             PostResponse postResponse = PostResponse.fromEntity(createdPost);
             return ResponseEntity.status(HttpStatus.CREATED).body(postResponse);
         } catch (IllegalArgumentException e) {
@@ -183,14 +180,13 @@ public class PostController {
             if (id == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
-            Post post = postService.getPostById(id);
 
-            if (updatePostRequest.getTitle() != null)
-                post.setTitle(updatePostRequest.getTitle());
-            if (updatePostRequest.getContent() != null)
-                post.setContent(updatePostRequest.getContent());
+            Post updatedPost = postService.updatePost(id, updatePostRequest);
 
-            Post updatedPost = postService.updatePost(post);
+            if (updatedPost == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
             PostResponse postResponse = PostResponse.fromEntity(updatedPost);
             return ResponseEntity.ok(postResponse);
         } catch (Exception e) {

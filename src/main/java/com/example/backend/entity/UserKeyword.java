@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user_keywords", schema = "communicare",
@@ -12,9 +13,9 @@ import java.time.OffsetDateTime;
     @Index(name="ix_keyword_user", columnList = "user_id")
   })
 public class UserKeyword {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="keyword_id")
-  private Long keywordId;
+  @Id
+  @Column(name="keyword_id", columnDefinition = "uuid")
+  private UUID keywordId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="user_id", nullable=false,

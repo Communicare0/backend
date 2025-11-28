@@ -173,7 +173,7 @@ CREATE TABLE communicare.chat_rooms (
                           title         VARCHAR(64),
                           photo_url     VARCHAR(255),
                           status        chat_room_status NOT NULL DEFAULT 'VISIBLE',
-                          last_chat_id  BIGINT, -- FK는 아래 ALTER TABLE에서 추가
+                          last_chat_id  UUID, -- FK는 아래 ALTER TABLE에서 추가
                           created_at    TIMESTAMPTZ NOT NULL,
                           updated_at    TIMESTAMPTZ NOT NULL,
                           deleted_at    TIMESTAMPTZ
@@ -207,7 +207,7 @@ CREATE TABLE communicare.chat_room_members (
                                  chat_room_member_id UUID PRIMARY KEY,
                                  chat_room_id        UUID   NOT NULL,
                                  user_id             UUID NOT NULL,
-                                 last_read_message_id BIGINT,
+                                 last_read_message_id UUID,
                                  created_at          TIMESTAMPTZ NOT NULL,
                                  updated_at          TIMESTAMPTZ NOT NULL,
                                  deleted_at          TIMESTAMPTZ,
@@ -241,7 +241,7 @@ CREATE TABLE communicare.restaurants (
 
 -- ========== 11. restaurant_reviews ==========
 CREATE TABLE communicare.restaurant_reviews (
-                                  restaurant_review_id BIGSERIAL PRIMARY KEY,
+                                  restaurant_review_id UUID PRIMARY KEY,
                                   restaurant_id        UUID    NOT NULL,
                                   author_id            UUID    NOT NULL,
                                   rating               INT     NOT NULL,
@@ -261,7 +261,7 @@ CREATE INDEX ix_review_author     ON communicare.restaurant_reviews (author_id);
 
 -- ========== 12. notifications ==========
 CREATE TABLE communicare.notifications (
-                             notification_id BIGSERIAL PRIMARY KEY,
+                             notification_id UUID PRIMARY KEY,
                              receiver_id     UUID NOT NULL,
                              content         VARCHAR(256) NOT NULL,
                              redirect_url    VARCHAR(2048),

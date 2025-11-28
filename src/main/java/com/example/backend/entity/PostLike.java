@@ -19,9 +19,8 @@ public class PostLike {
 
   /** 대체키(단일 PK) */
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "post_like_id")
-  private Long postLikeId;
+  @Column(name = "post_like_id", columnDefinition = "uuid")
+  private UUID postLikeId;
 
   /** 좋아요를 누른 사용자 */
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -44,8 +43,8 @@ public class PostLike {
   private OffsetDateTime deletedAt;
 
   // === getters / setters ===
-  public Long getPostLikeId() { return postLikeId; }
-  public void setPostLikeId(Long postLikeId) { this.postLikeId = postLikeId; }
+  public UUID getPostLikeId() { return postLikeId; }
+  public void setPostLikeId(UUID postLikeId) { this.postLikeId = postLikeId; }
   public User getUser() { return user; }
   public void setUser(User user) { this.user = user; }
   public Post getPost() { return post; }

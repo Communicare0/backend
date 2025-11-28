@@ -17,9 +17,9 @@ import java.util.UUID;
     @Index(name="ix_friend_addressee", columnList = "addressee_id")
   })
 public class Friendship {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="friendship_id")
-  private Long friendshipId;
+  @Id
+  @Column(name="friendship_id", columnDefinition = "uuid")
+  private UUID friendshipId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="requester_id", nullable=false,

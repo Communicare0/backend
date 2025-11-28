@@ -12,9 +12,9 @@ import java.util.UUID;
     @Index(name="ix_report_target", columnList = "target_type,target_id")
   })
 public class Report {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="report_id")
-  private Long reportId;
+  @Id
+  @Column(name="report_id", columnDefinition = "uuid")
+  private UUID reportId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="reporter_id", nullable=false,

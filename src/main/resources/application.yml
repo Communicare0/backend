@@ -2,7 +2,7 @@ spring:
   application:
     name: backend
   profiles:
-    active: local   # 기본은 local, Docker/Render에서는 환경변수로 override 가능
+    active: prod   # 기본은 local, Docker/Render에서는 환경변수로 override 가능
 
   datasource:
     url: jdbc:postgresql://postgres:5432/communicare
@@ -41,3 +41,4 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
+

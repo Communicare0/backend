@@ -51,7 +51,7 @@ CREATE TABLE communicare.users (
 
 -- ========== 2. friendships ==========
 CREATE TABLE communicare.friendships (
-                           friendship_id UUID PRIMARY KEY,
+                           friendship_id UUID     PRIMARY KEY,
                            requester_id  UUID      NOT NULL,
                            addressee_id  UUID      NOT NULL,
                            status        friendship_status NOT NULL DEFAULT 'PENDING',
@@ -101,7 +101,7 @@ CREATE INDEX ix_post_translated_post ON communicare.post_translated (post_id);
 
 -- ========== 2.6. refresh_tokens ==========
 CREATE TABLE communicare.refresh_tokens (
-                                     id              UUID PRIMARY KEY,
+                                     id              UUID    PRIMARY KEY,
                                      user_id         UUID    NOT NULL,
                                      refresh_token   VARCHAR(255) NOT NULL,
                                      expires_at      TIMESTAMPTZ   NOT NULL,
@@ -301,6 +301,28 @@ CREATE TABLE communicare.timetables (
                           CONSTRAINT ck_time_order CHECK (start_time < end_time)
 );
 CREATE INDEX ix_timetable_user ON communicare.timetables (user_id, day_of_week);
+
+-- ==============================
+--  Create table: post_translated
+-- ==============================
+
+CREATE TABLE communicare.post_translated (
+    postTranslated_id UUID PRIMARY KEY,
+    post_id UUID NOT NULL,
+    language VARCHAR(255) NOT NULL,
+    translatedTitle TEXT,
+    translatedContent TEXT,
+    translatedAt TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT uq_post_lang UNIQUE (post_id, language),
+    CONSTRAINT fk_translated_post FOREIGN KEY (post_id)
+        REFERENCES communicare.posts (post_id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- index for post_id
+CREATE INDEX ix_post_translated_post
+    ON communicare.post_translated (post_id);
 
 -- =========================================
 -- 끝

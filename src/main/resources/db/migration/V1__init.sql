@@ -22,9 +22,11 @@ CREATE TYPE communicare.rating_good_reason       AS ENUM ('친절해요','맛있
 CREATE TYPE communicare.rating_bad_reason        AS ENUM ('불친절해요','맛없어요','비싸요','위생이별로예요');
 CREATE TYPE communicare.day_of_week_type         AS ENUM ('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY');
 
+SET search_path TO communicare, public;
+
 -- ========== 1. users ==========
 CREATE TABLE communicare.users (
-                     user_id           BIGSERIAL PRIMARY KEY,
+                     user_id           UUID PRIMARY KEY,
                      email             VARCHAR(255)  NOT NULL,
                      nickname          VARCHAR(50)   NOT NULL,
                      department        VARCHAR(100),
@@ -46,8 +48,8 @@ CREATE TABLE communicare.users (
 -- ========== 2. friendships ==========
 CREATE TABLE communicare.friendships (
                            friendship_id BIGSERIAL PRIMARY KEY,
-                           requester_id  BIGINT      NOT NULL,
-                           addressee_id  BIGINT      NOT NULL,
+                           requester_id  UUID      NOT NULL,
+                           addressee_id  UUID      NOT NULL,
                            status        friendship_status NOT NULL DEFAULT 'PENDING',
                            created_at    TIMESTAMPTZ NOT NULL,
                            updated_at    TIMESTAMPTZ NOT NULL,
@@ -63,7 +65,7 @@ CREATE INDEX ix_friend_addressee ON communicare.friendships (addressee_id);
 -- ========== 4. posts ==========
 CREATE TABLE communicare.posts (
                      post_id      UUID PRIMARY KEY,
-                     author_id    BIGINT       NOT NULL,
+                     author_id    UUID       NOT NULL,
                      title        TEXT,
                      content      TEXT,
                      category     post_category,
@@ -83,7 +85,7 @@ CREATE INDEX ix_post_author ON communicare.posts (author_id);
 CREATE TABLE communicare.comments (
                         comment_id   UUID PRIMARY KEY,
                         post_id      UUID         NOT NULL,
-                        author_id    BIGINT       NOT NULL,
+                        author_id    UUID       NOT NULL,
                         parent_id    UUID,
                         content      VARCHAR(255) NOT NULL,
                         is_translated BOOLEAN     NOT NULL DEFAULT FALSE,
@@ -103,7 +105,7 @@ CREATE INDEX ix_comment_parent ON communicare.comments (parent_id);
 -- ========== 5. post_likes (단일 PK + 유니크 제약) ==========
 CREATE TABLE communicare.post_likes (
                           post_like_id BIGSERIAL PRIMARY KEY,
-                          user_id      BIGINT NOT NULL,
+                          user_id      UUID NOT NULL,
                           post_id      UUID   NOT NULL,
                           created_at   TIMESTAMPTZ NOT NULL,
                           updated_at   TIMESTAMPTZ NOT NULL,
@@ -119,7 +121,7 @@ CREATE INDEX ix_post_like_post ON communicare.post_likes (post_id);
 -- ========== 6. reports ==========
 CREATE TABLE communicare.reports (
                        report_id   BIGSERIAL PRIMARY KEY,
-                       reporter_id BIGINT NOT NULL,
+                       reporter_id UUID NOT NULL,
                        target_type report_target_type NOT NULL,
                        target_id   UUID   NOT NULL,  -- Post.post_id 또는 Comment.comment_id
                        reason      VARCHAR(255) NOT NULL,
@@ -150,7 +152,7 @@ CREATE TABLE communicare.chat_rooms (
 CREATE TABLE communicare.chat_messages (
                              chat_message_id BIGSERIAL PRIMARY KEY,
                              chat_room_id    UUID    NOT NULL,
-                             sender_id       BIGINT  NOT NULL,
+                             sender_id       UUID  NOT NULL,
                              content         TEXT    NOT NULL,
                              message_type    message_type NOT NULL DEFAULT 'TEXT',
                              is_translated   BOOLEAN NOT NULL DEFAULT FALSE,
@@ -173,7 +175,7 @@ ALTER TABLE communicare.chat_rooms
 CREATE TABLE communicare.chat_room_members (
                                  chat_room_member_id BIGSERIAL PRIMARY KEY,
                                  chat_room_id        UUID   NOT NULL,
-                                 user_id             BIGINT NOT NULL,
+                                 user_id             UUID NOT NULL,
                                  last_read_message_id BIGINT,
                                  created_at          TIMESTAMPTZ NOT NULL,
                                  updated_at          TIMESTAMPTZ NOT NULL,
@@ -210,7 +212,7 @@ CREATE TABLE communicare.restaurants (
 CREATE TABLE communicare.restaurant_reviews (
                                   restaurant_review_id BIGSERIAL PRIMARY KEY,
                                   restaurant_id        UUID    NOT NULL,
-                                  author_id            BIGINT  NOT NULL,
+                                  author_id            UUID    NOT NULL,
                                   rating               INT     NOT NULL,
                                   rating_good_reason   rating_good_reason,
                                   rating_bad_reason    rating_bad_reason,
@@ -229,7 +231,7 @@ CREATE INDEX ix_review_author     ON communicare.restaurant_reviews (author_id);
 -- ========== 12. notifications ==========
 CREATE TABLE communicare.notifications (
                              notification_id BIGSERIAL PRIMARY KEY,
-                             receiver_id     BIGINT NOT NULL,
+                             receiver_id     UUID NOT NULL,
                              content         VARCHAR(256) NOT NULL,
                              redirect_url    VARCHAR(2048),
                              is_read         BOOLEAN NOT NULL DEFAULT FALSE,
@@ -243,7 +245,7 @@ CREATE INDEX ix_notification_receiver ON communicare.notifications (receiver_id)
 -- ========== 13. user_keywords ==========
 CREATE TABLE communicare.user_keywords (
                              keyword_id  BIGSERIAL PRIMARY KEY,
-                             user_id     BIGINT NOT NULL,
+                             user_id     UUID NOT NULL,
                              keyword     VARCHAR(50) NOT NULL,
                              created_at  TIMESTAMPTZ NOT NULL,
                              updated_at  TIMESTAMPTZ NOT NULL,
@@ -256,7 +258,7 @@ CREATE INDEX ix_keyword_user ON communicare.user_keywords (user_id);
 -- ========== 14. timetables ==========
 CREATE TABLE communicare.timetables (
                           timetable_id BIGSERIAL PRIMARY KEY,
-                          user_id      BIGINT NOT NULL,
+                          user_id      UUID NOT NULL,
                           day_of_week  day_of_week_type NOT NULL,
                           start_time   TIME   NOT NULL,
                           end_time     TIME   NOT NULL,

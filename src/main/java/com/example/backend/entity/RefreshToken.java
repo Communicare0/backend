@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "refresh_tokens", schema = "communicare")
@@ -17,11 +18,11 @@ import java.time.OffsetDateTime;
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", columnDefinition = "uuid")
+    private UUID id;
 
     @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
-    private String userId;
+    private UUID userId;
 
     @Column(name = "refresh_token", nullable = false, length = 255)
     private String refreshToken;

@@ -4,6 +4,7 @@ import com.example.backend.entity.enums.DayOfWeek;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "timetables", schema = "communicare",
@@ -11,9 +12,9 @@ import java.time.OffsetDateTime;
     @Index(name="ix_timetable_user", columnList = "user_id,day_of_week")
   })
 public class Timetable {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="timetable_id")
-  private Long timetableId;
+  @Id
+  @Column(name="timetable_id", columnDefinition = "uuid")
+  private UUID timetableId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="user_id", nullable=false,

@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "chat_room_members", schema = "communicare",
@@ -13,9 +14,9 @@ import java.time.OffsetDateTime;
     @Index(name="ix_crm_user", columnList = "user_id")
   })
 public class ChatRoomMember {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="chat_room_member_id")
-  private Long chatRoomMemberId;
+  @Id
+  @Column(name="chat_room_member_id", columnDefinition = "uuid")
+  private UUID chatRoomMemberId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="chat_room_id", nullable=false,
@@ -28,7 +29,7 @@ public class ChatRoomMember {
   private User user;
 
   @Column(name="last_read_message_id")
-  private Long lastReadMessageId;
+  private UUID lastReadMessageId;
 
   @Column(nullable = false)
   private OffsetDateTime createdAt;

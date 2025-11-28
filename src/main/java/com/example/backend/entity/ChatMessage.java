@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "chat_messages", schema = "communicare",
@@ -11,9 +12,9 @@ import java.time.OffsetDateTime;
     @Index(name="ix_msg_sender", columnList = "sender_id")
   })
 public class ChatMessage {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="chat_message_id")
-  private Long chatMessageId;
+  @Id
+  @Column(name="chat_message_id", columnDefinition = "uuid")
+  private UUID chatMessageId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="chat_room_id", nullable=false,

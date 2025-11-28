@@ -3,6 +3,7 @@ package com.example.backend.entity;
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "restaurant_reviews", schema = "communicare",
@@ -11,9 +12,9 @@ import java.time.OffsetDateTime;
     @Index(name="ix_review_author", columnList = "author_id")
   })
 public class RestaurantReview {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name="restaurant_review_id")
-  private Long restaurantReviewId;
+  @Id
+  @Column(name="restaurant_review_id", columnDefinition = "uuid")
+  private UUID restaurantReviewId;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name="restaurant_id", nullable=false,

@@ -51,7 +51,7 @@ CREATE TABLE communicare.users (
 
 -- ========== 2. friendships ==========
 CREATE TABLE communicare.friendships (
-                           friendship_id BIGSERIAL PRIMARY KEY,
+                           friendship_id UUID PRIMARY KEY,
                            requester_id  UUID      NOT NULL,
                            addressee_id  UUID      NOT NULL,
                            status        friendship_status NOT NULL DEFAULT 'PENDING',
@@ -101,7 +101,7 @@ CREATE INDEX ix_post_translated_post ON communicare.post_translated (post_id);
 
 -- ========== 2.6. refresh_tokens ==========
 CREATE TABLE communicare.refresh_tokens (
-                                     id              BIGSERIAL PRIMARY KEY,
+                                     id              UUID PRIMARY KEY,
                                      user_id         UUID    NOT NULL,
                                      refresh_token   VARCHAR(255) NOT NULL,
                                      expires_at      TIMESTAMPTZ   NOT NULL,
@@ -135,7 +135,7 @@ CREATE INDEX ix_comment_parent ON communicare.comments (parent_id);
 
 -- ========== 5. post_likes (단일 PK + 유니크 제약) ==========
 CREATE TABLE communicare.post_likes (
-                          post_like_id BIGSERIAL PRIMARY KEY,
+                          post_like_id UUID PRIMARY KEY,
                           user_id      UUID NOT NULL,
                           post_id      UUID   NOT NULL,
                           created_at   TIMESTAMPTZ NOT NULL,
@@ -151,7 +151,7 @@ CREATE INDEX ix_post_like_post ON communicare.post_likes (post_id);
 
 -- ========== 6. reports ==========
 CREATE TABLE communicare.reports (
-                       report_id   BIGSERIAL PRIMARY KEY,
+                       report_id   UUID PRIMARY KEY,
                        reporter_id UUID NOT NULL,
                        target_type report_target_type NOT NULL,
                        target_id   UUID   NOT NULL,  -- Post.post_id 또는 Comment.comment_id
@@ -173,7 +173,7 @@ CREATE TABLE communicare.chat_rooms (
                           title         VARCHAR(64),
                           photo_url     VARCHAR(255),
                           status        chat_room_status NOT NULL DEFAULT 'VISIBLE',
-                          last_chat_id  BIGINT, -- FK는 아래 ALTER TABLE에서 추가
+                          last_chat_id  UUID, -- FK는 아래 ALTER TABLE에서 추가
                           created_at    TIMESTAMPTZ NOT NULL,
                           updated_at    TIMESTAMPTZ NOT NULL,
                           deleted_at    TIMESTAMPTZ
@@ -181,7 +181,7 @@ CREATE TABLE communicare.chat_rooms (
 
 -- ========== 9. chat_messages ==========
 CREATE TABLE communicare.chat_messages (
-                             chat_message_id BIGSERIAL PRIMARY KEY,
+                             chat_message_id UUID PRIMARY KEY,
                              chat_room_id    UUID    NOT NULL,
                              sender_id       UUID  NOT NULL,
                              content         TEXT    NOT NULL,
@@ -204,10 +204,10 @@ ALTER TABLE communicare.chat_rooms
 
 -- ========== 8. chat_room_members ==========
 CREATE TABLE communicare.chat_room_members (
-                                 chat_room_member_id BIGSERIAL PRIMARY KEY,
+                                 chat_room_member_id UUID PRIMARY KEY,
                                  chat_room_id        UUID   NOT NULL,
                                  user_id             UUID NOT NULL,
-                                 last_read_message_id BIGINT,
+                                 last_read_message_id UUID,
                                  created_at          TIMESTAMPTZ NOT NULL,
                                  updated_at          TIMESTAMPTZ NOT NULL,
                                  deleted_at          TIMESTAMPTZ,
@@ -241,7 +241,7 @@ CREATE TABLE communicare.restaurants (
 
 -- ========== 11. restaurant_reviews ==========
 CREATE TABLE communicare.restaurant_reviews (
-                                  restaurant_review_id BIGSERIAL PRIMARY KEY,
+                                  restaurant_review_id UUID PRIMARY KEY,
                                   restaurant_id        UUID    NOT NULL,
                                   author_id            UUID    NOT NULL,
                                   rating               INT     NOT NULL,
@@ -261,7 +261,7 @@ CREATE INDEX ix_review_author     ON communicare.restaurant_reviews (author_id);
 
 -- ========== 12. notifications ==========
 CREATE TABLE communicare.notifications (
-                             notification_id BIGSERIAL PRIMARY KEY,
+                             notification_id UUID PRIMARY KEY,
                              receiver_id     UUID NOT NULL,
                              content         VARCHAR(256) NOT NULL,
                              redirect_url    VARCHAR(2048),
@@ -275,7 +275,7 @@ CREATE INDEX ix_notification_receiver ON communicare.notifications (receiver_id)
 
 -- ========== 13. user_keywords ==========
 CREATE TABLE communicare.user_keywords (
-                             keyword_id  BIGSERIAL PRIMARY KEY,
+                             keyword_id  UUID PRIMARY KEY,
                              user_id     UUID NOT NULL,
                              keyword     VARCHAR(50) NOT NULL,
                              created_at  TIMESTAMPTZ NOT NULL,
@@ -288,7 +288,7 @@ CREATE INDEX ix_keyword_user ON communicare.user_keywords (user_id);
 
 -- ========== 14. timetables ==========
 CREATE TABLE communicare.timetables (
-                          timetable_id BIGSERIAL PRIMARY KEY,
+                          timetable_id UUID PRIMARY KEY,
                           user_id      UUID NOT NULL,
                           day_of_week  day_of_week_type NOT NULL,
                           start_time   TIME   NOT NULL,

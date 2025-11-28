@@ -48,7 +48,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(java.util.List.of(
             "http://localhost:5173",
-            "https://frontend-black-nine-80.vercel.app"
+            "https://frontend-black-nine-80.vercel.app",
+            "http://127.0.0.1:5173"
         ));
         configuration.setAllowedMethods(java.util.List.of(
             "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"

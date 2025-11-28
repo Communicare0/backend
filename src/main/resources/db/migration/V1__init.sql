@@ -7,6 +7,7 @@ CREATE SCHEMA IF NOT EXISTS communicare;
 
 -- ========== ENUM TYPES (in communicare schema) ==========
 CREATE TYPE communicare.account_status           AS ENUM ('ACTIVE','SUSPENDED','DELETED');
+CREATE TYPE communicare.user_role                AS ENUM ('USER','ADMIN');
 CREATE TYPE communicare.friendship_status        AS ENUM ('PENDING','ACCEPTED','BLOCKED');
 CREATE TYPE communicare.comment_status           AS ENUM ('VISIBLE','HIDDEN','BLOCKED');
 CREATE TYPE communicare.post_category            AS ENUM ('NOTICE','GENERAL','QNA');
@@ -21,6 +22,7 @@ CREATE TYPE communicare.restaurant_type          AS ENUM ('HALAL','KOSHER','VEGA
 CREATE TYPE communicare.rating_good_reason       AS ENUM ('친절해요','맛있어요','가성비좋아요','분위기좋아요');
 CREATE TYPE communicare.rating_bad_reason        AS ENUM ('불친절해요','맛없어요','비싸요','위생이별로예요');
 CREATE TYPE communicare.day_of_week_type         AS ENUM ('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY');
+CREATE TYPE communicare.language                 AS ENUM ('KO','EN','ZH','JA','ES','FR','DE','RU','AR','OTHER');
 
 SET search_path TO communicare, public;
 
@@ -28,6 +30,7 @@ SET search_path TO communicare, public;
 CREATE TABLE communicare.users (
                      user_id           UUID PRIMARY KEY,
                      email             VARCHAR(255)  NOT NULL,
+                     password          VARCHAR(255)  NOT NULL,
                      nickname          VARCHAR(50)   NOT NULL,
                      department        VARCHAR(100),
                      student_id        VARCHAR(20),
@@ -35,6 +38,7 @@ CREATE TABLE communicare.users (
                      language          VARCHAR(10),
                      profile_image_url VARCHAR(2048),
                      friend_code       VARCHAR(10)   NOT NULL,
+                     role              user_role    NOT NULL DEFAULT 'USER',
                      status            account_status NOT NULL DEFAULT 'ACTIVE',
                      created_at        TIMESTAMPTZ   NOT NULL,
                      updated_at        TIMESTAMPTZ   NOT NULL,
@@ -80,6 +84,33 @@ CREATE TABLE communicare.posts (
                      CONSTRAINT fk_post_author FOREIGN KEY (author_id) REFERENCES communicare.users(user_id)
 );
 CREATE INDEX ix_post_author ON communicare.posts (author_id);
+
+-- ========== 2.5. post_translated ==========
+CREATE TABLE communicare.post_translated (
+                               post_translated_id UUID PRIMARY KEY,
+                               post_id            UUID     NOT NULL,
+                               language           language NOT NULL,
+                               translated_title   TEXT,
+                               translated_content TEXT,
+                               translated_at      TIMESTAMPTZ NOT NULL,
+
+                               CONSTRAINT uq_post_lang UNIQUE (post_id, language),
+                               CONSTRAINT fk_translated_post FOREIGN KEY (post_id) REFERENCES communicare.posts(post_id)
+);
+CREATE INDEX ix_post_translated_post ON communicare.post_translated (post_id);
+
+-- ========== 2.6. refresh_tokens ==========
+CREATE TABLE communicare.refresh_tokens (
+                                     id              BIGSERIAL PRIMARY KEY,
+                                     user_id         UUID    NOT NULL,
+                                     refresh_token   VARCHAR(255) NOT NULL,
+                                     expires_at      TIMESTAMPTZ   NOT NULL,
+                                     created_at      TIMESTAMPTZ   NOT NULL,
+                                     updated_at      TIMESTAMPTZ   NOT NULL,
+
+                                     CONSTRAINT fk_refresh_token_user FOREIGN KEY (user_id) REFERENCES communicare.users(user_id)
+);
+CREATE INDEX ix_refresh_token_user ON communicare.refresh_tokens (user_id);
 
 -- ========== 3. comments ==========
 CREATE TABLE communicare.comments (

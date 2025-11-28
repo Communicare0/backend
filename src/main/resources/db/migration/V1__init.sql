@@ -271,6 +271,28 @@ CREATE TABLE communicare.timetables (
 );
 CREATE INDEX ix_timetable_user ON communicare.timetables (user_id, day_of_week);
 
+-- ==============================
+--  Create table: post_translated
+-- ==============================
+
+CREATE TABLE communicare.post_translated (
+    postTranslated_id UUID PRIMARY KEY,
+    post_id UUID NOT NULL,
+    language VARCHAR(255) NOT NULL,
+    translatedTitle TEXT,
+    translatedContent TEXT,
+    translatedAt TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT uq_post_lang UNIQUE (post_id, language),
+    CONSTRAINT fk_translated_post FOREIGN KEY (post_id)
+        REFERENCES communicare.posts (post_id)
+        ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+-- index for post_id
+CREATE INDEX ix_post_translated_post
+    ON communicare.post_translated (post_id);
+
 -- =========================================
 -- 끝
 -- =========================================

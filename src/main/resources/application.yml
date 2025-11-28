@@ -27,6 +27,13 @@ spring:
         default_schema: communicare
         jdbc.time_zone: UTC
 
+# JWT Configuration
+jwt:
+  issuer: "Communicare-Backend"
+  secret-key: "bXkgdmVyeSBzZWNyZXQga2V5IHRoYXQgc2hvdWxkIGJlIGxvbmcgZW5vdWdoIGZvciBicm9rZW4gYW5kIHNob3VsZCBiZSBiYXNlNjQgZW5jb2RlZCBzbyBpdCBpcyBzYWZlIGVub3VnaCBmb3Igam10"
+  access-token-ttl-ms: 3600000  # 1 hour
+  refresh-token-ttl-ms: 604800000  # 7 days
+
 # Swagger/OpenAPI Configuration
 springdoc:
   api-docs:

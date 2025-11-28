@@ -67,10 +67,10 @@ public class UserServiceImpl implements UserService {
 
         OffsetDateTime refreshExpiresAt = OffsetDateTime.now().plusSeconds(jwtConfig.getRefreshTokenTtlMs() / 1000);
 
-        RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId().toString())
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId())
                 .map(rt -> rt.updateToken(refreshToken, refreshExpiresAt))
                 .orElse(RefreshToken.builder()
-                        .userId(user.getUserId().toString())
+                        .userId(user.getUserId())
                         .refreshToken(refreshToken)
                         .expiresAt(refreshExpiresAt)
                         .build());

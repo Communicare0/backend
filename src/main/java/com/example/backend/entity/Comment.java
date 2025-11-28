@@ -2,11 +2,18 @@ package com.example.backend.entity;
 
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /** 3. Comment */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "comments", schema = "communicare",
   indexes = {
@@ -50,4 +57,5 @@ public class Comment {
 
   private OffsetDateTime deletedAt;
   // getters/setters ...
+ 
 }

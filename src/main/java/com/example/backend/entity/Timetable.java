@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import com.example.backend.entity.enums.DayOfWeek;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -21,7 +22,7 @@ public class Timetable {
 
   @Enumerated(EnumType.STRING)
   @Column(name="day_of_week", nullable = false)
-  private java.time.DayOfWeek dayOfWeek;
+  private DayOfWeek dayOfWeek;
 
   @Column(nullable = false)
   private LocalTime startTime;

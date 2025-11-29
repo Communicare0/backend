@@ -169,7 +169,7 @@ class PostControllerTest {
         updatedPost.setContent("수정된 내용");
         updatedPost.setCategory(PostCategory.GENERAL);
 
-        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
+        when(postService.updatePost(any(UUID.class), eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -195,7 +195,8 @@ class PostControllerTest {
         updatedPost.setCategory(PostCategory.GENERAL);
 
         when(postService.getPostById(testPostId)).thenReturn(testPost);
-        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
+
+        when(postService.updatePost(any(UUID.class), eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -221,7 +222,8 @@ class PostControllerTest {
         updatedPost.setCategory(PostCategory.GENERAL);
 
         when(postService.getPostById(testPostId)).thenReturn(testPost);
-        when(postService.updatePost(eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
+
+        when(postService.updatePost(any(UUID.class), eq(testPostId), any(UpdatePostRequest.class))).thenReturn(updatedPost);
 
         mockMvc.perform(put("/v1/posts/{id}", testPostId)
                         .contentType(MediaType.APPLICATION_JSON)

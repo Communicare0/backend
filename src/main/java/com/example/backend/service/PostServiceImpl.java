@@ -53,24 +53,47 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Post updatePost(UUID postId, UpdatePostRequest updatePostRequest) {
-        Optional<Post> post = postRepository.findById(postId);
+    public Post updatePost(UUID userId, UUID postId, UpdatePostRequest updatePostRequest) {
+        Optional<Post> postOpt = postRepository.findById(postId);
 
-        if (post.isPresent()) {
-            Post updatedPost = post.get();
-            if (updatePostRequest.getTitle() != null)
-                updatedPost.setTitle(updatePostRequest.getTitle());
-            if (updatePostRequest.getContent() != null)
-                updatedPost.setContent(updatePostRequest.getContent());
-            return postRepository.save(updatedPost);
-        } else {
+        if (postOpt.isEmpty()) {
             return null;
         }
+
+        Post post = postOpt.get();
+
+        // 작성자와 로그인 유저 일치 여부 확인
+        if (!post.getAuthor().getUserId().equals(userId)) {
+
+            return null;
+        }
+
+        if (updatePostRequest.getTitle() != null) {
+            post.setTitle(updatePostRequest.getTitle());
+        }
+        if (updatePostRequest.getContent() != null) {
+            post.setContent(updatePostRequest.getContent());
+        }
+
+        return postRepository.save(post);
     }
 
     @Override
     @Transactional
-    public void deletePost(UUID id) {
-        postRepository.deleteById(id);
+    public void deletePost(UUID userId, UUID postId) {
+        Optional<Post> postOpt = postRepository.findById(postId);
+
+        if (postOpt.isEmpty()) {
+            return;
+        }
+
+        Post post = postOpt.get();
+
+        // 작성자와 로그인 유저 일치 여부 확인
+        if (!post.getAuthor().getUserId().equals(userId)) {
+            return;
+        }
+
+        postRepository.deleteById(postId);
     }
 }

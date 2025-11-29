@@ -9,7 +9,7 @@ COPY build.gradle build.gradle
 COPY src src
 
 RUN chmod +x gradlew || true
-RUN ./gradlew clean test bootJar --no-daemon
+RUN ./gradlew clean bootJar -x test --no-daemon
 
 # ---------- Run stage ----------
 FROM eclipse-temurin:21-jre

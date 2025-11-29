@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class CommentServiceImpl implements CommentService {
 
     private final UserRepository userRepository;
@@ -33,17 +34,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Comment getCommentById(UUID id) {
         return commentRepository.findById(id).orElse(null);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Comment> findCommentsByPostId(UUID postId) {
         return commentRepository.findByPost_PostIdOrderByCreatedAtAsc(postId);
     }
 
     @Override
-    @Transactional
     public Comment createComment(UUID userId, CreateCommentRequest createCommentRequest) {
         User user = userRepository.getReferenceById(userId);
         Post post = postRepository.getReferenceById(createCommentRequest.getPostId());
@@ -57,26 +59,43 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional
-    public Comment updateComment(UUID commentId, UpdateCommentRequest updateCommentRequest) {
+    public Comment updateComment(UUID userId, UUID commentId, UpdateCommentRequest updateCommentRequest) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
 
-        if (optionalComment.isPresent()) {
-            Comment comment = optionalComment.get();
+        if (optionalComment.isEmpty()) {
+            return null; 
+        }
 
-            if (updateCommentRequest.getContent() != null) {
-                comment.setContent(updateCommentRequest.getContent());
-            }
+        Comment comment = optionalComment.get();
 
-            return commentRepository.save(comment);
-        } else {
+        // 로그인 유저와 작성자 일치 여부 확인
+        if (!comment.getAuthor().getUserId().equals(userId)) {
+
             return null;
         }
+
+        if (updateCommentRequest.getContent() != null) {
+            comment.setContent(updateCommentRequest.getContent());
+        }
+
+        return commentRepository.save(comment);
     }
 
     @Override
-    @Transactional
-    public void deleteComment(UUID id) {
+    public void deleteComment(UUID userId, UUID id) {
+        Optional<Comment> optionalComment = commentRepository.findById(id);
+
+        if (optionalComment.isEmpty()) {
+            return; // 없는 댓글이면 그냥 무시
+        }
+
+        Comment comment = optionalComment.get();
+
+        // 로그인 유저와 작성자 일치 여부 확인
+        if (!comment.getAuthor().getUserId().equals(userId)) {
+            return;
+        }
+
         commentRepository.deleteById(id);
     }
 }

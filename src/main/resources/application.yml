@@ -26,6 +26,8 @@ spring:
         format_sql: true
         default_schema: communicare
         jdbc.time_zone: UTC
+        type: 
+          preferred_enum_type: pgsql_enum
 
 # JWT Configuration
 jwt:

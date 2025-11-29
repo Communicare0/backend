@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;   // 👈 추가
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,9 +26,6 @@ import java.util.UUID;
 public class CommentController {
 
     private final CommentService commentService;
-
-    // TODO(hj): 실제 인증된 사용자 ID로 교체
-    private final UUID PLACEHOLDER_USER_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
@@ -53,12 +51,13 @@ public class CommentController {
         }
     )
     public ResponseEntity<List<CommentResponse>> getCommentsByPost(@PathVariable UUID postId) {
+        // 👉 댓글 조회는 굳이 로그인 안 해도 되면 인증 안 써도 됨 (지금처럼 둬도 OK)
         List<Comment> comments = commentService.findCommentsByPostId(postId);
 
         List<CommentResponse> response =
-                comments.stream()
-                        .map(CommentResponse::fromEntity)
-                        .toList();
+            comments.stream()
+                    .map(CommentResponse::fromEntity)
+                    .toList();
 
         return ResponseEntity.ok(response);
     }
@@ -82,6 +81,7 @@ public class CommentController {
         }
     )
     public ResponseEntity<CommentResponse> createComment(
+            Authentication authentication,   // 👈 로그인 정보 주입
             @org.springframework.web.bind.annotation.RequestBody CreateCommentRequest request
     ) {
         try {
@@ -89,7 +89,9 @@ public class CommentController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            Comment created = commentService.createComment(PLACEHOLDER_USER_ID, request);
+            UUID userId = (UUID) authentication.getPrincipal();  // 👈 JWT에서 userId 꺼냄
+
+            Comment created = commentService.createComment(userId, request);
             CommentResponse response = CommentResponse.fromEntity(created);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -123,6 +125,7 @@ public class CommentController {
         }
     )
     public ResponseEntity<CommentResponse> updateComment(
+            Authentication authentication,
             @PathVariable UUID commentId,
             @org.springframework.web.bind.annotation.RequestBody UpdateCommentRequest request
     ) {
@@ -131,7 +134,12 @@ public class CommentController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            Comment updated = commentService.updateComment(commentId, request);
+            UUID userId = (UUID) authentication.getPrincipal();
+
+            // ⚠️ CommentService 시그니처를
+            // updateComment(UUID userId, UUID commentId, UpdateCommentRequest request)
+            // 이런 식으로 바꿔주는 걸 추천
+            Comment updated = commentService.updateComment(userId, commentId, request);
             if (updated == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -158,13 +166,21 @@ public class CommentController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
         }
     )
-    public ResponseEntity<Void> deleteComment(@PathVariable UUID commentId) {
+    public ResponseEntity<Void> deleteComment(
+            Authentication authentication,
+            @PathVariable UUID commentId
+    ) {
         try {
             if (commentId == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            commentService.deleteComment(commentId);
+            UUID userId = (UUID) authentication.getPrincipal();
+
+            // ⚠️ CommentService.deleteComment도
+            // deleteComment(UUID userId, UUID commentId) 같은 형태로 바꾸면
+            // 내부에서 "작성자만 삭제 가능" 체크하기 좋음
+            commentService.deleteComment(userId, commentId);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

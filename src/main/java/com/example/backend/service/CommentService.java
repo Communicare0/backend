@@ -13,9 +13,7 @@ public interface CommentService {
 
     List<Comment> findCommentsByPostId(UUID postId);
 
-    Comment createComment(UUID userId, CreateCommentRequest createCommentRequest);
-
-    Comment updateComment(UUID commentId, UpdateCommentRequest updateCommentRequest);
-
-    void deleteComment(UUID id);
+    Comment createComment(UUID userId, CreateCommentRequest request);
+    Comment updateComment(UUID userId, UUID commentId, UpdateCommentRequest request);
+    void deleteComment(UUID userId, UUID commentId); 
 }

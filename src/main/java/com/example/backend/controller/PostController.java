@@ -1,5 +1,8 @@
 package com.example.backend.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.example.backend.dto.request.CreatePostRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.dto.response.PostResponse;
@@ -28,11 +31,19 @@ import java.util.UUID;
 public class PostController {
     private final PostService postService;
 
-    // TODO(hj): remove this placeholder user ID and use actual authenticated user ID.
-    private final UUID PLACEHOLDER_USER_ID = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
-
     public PostController(PostService postService) {
         this.postService = postService;
+    }
+
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication != null ? authentication.getPrincipal() : null;
+
+        if (principal instanceof UUID uuid) {
+            return uuid;
+        }
+
+        throw new IllegalStateException("인증 정보에서 사용자 ID를 찾을 수 없습니다.");
     }
 
     @GetMapping("/user")
@@ -50,8 +61,8 @@ public class PostController {
             }
     )
     public ResponseEntity<List<PostResponse>> getPosts() {
-        // TODO(hj): Get authenticated user ID from security context
-        UUID userId = PLACEHOLDER_USER_ID;
+        
+        UUID userId = getCurrentUserId();
 
         List<Post> posts = postService.findPostsByUserId(userId);
 
@@ -92,7 +103,8 @@ public class PostController {
         }
     )
     public ResponseEntity<PostResponse> getPost(@PathVariable UUID id) {
-        UUID userId = PLACEHOLDER_USER_ID;
+        
+        UUID userId = getCurrentUserId(); 
 
         if (id == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -129,7 +141,7 @@ public class PostController {
         }
     )
     public ResponseEntity<PostResponse> createPost(@RequestBody CreatePostRequest createPostRequest) {
-        UUID userId = PLACEHOLDER_USER_ID;
+        UUID userId = getCurrentUserId();
 
         try {
             if (createPostRequest.getTitle() == null || createPostRequest.getContent() == null || createPostRequest.getCategory() == null) {
@@ -174,14 +186,15 @@ public class PostController {
         }
     )
     public ResponseEntity<PostResponse> updatePost(@PathVariable UUID id, @RequestBody UpdatePostRequest updatePostRequest) {
-        UUID userId = PLACEHOLDER_USER_ID;
+        
+        UUID userId = getCurrentUserId();
 
         try {
             if (id == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            Post updatedPost = postService.updatePost(id, updatePostRequest);
+            Post updatedPost = postService.updatePost(userId, id, updatePostRequest);
 
             if (updatedPost == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -224,13 +237,14 @@ public class PostController {
         }
     )
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
-        UUID userId = PLACEHOLDER_USER_ID;
+        UUID userId = getCurrentUserId();
 
         try {
             if (id == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
             Post post = postService.getPostById(id);
+
             if (post == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -238,7 +252,7 @@ public class PostController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            postService.deletePost(id);
+            postService.deletePost(userId, id);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

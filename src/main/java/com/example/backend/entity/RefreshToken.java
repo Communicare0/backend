@@ -24,7 +24,7 @@ public class RefreshToken {
     @Column(name = "user_id", nullable = false, columnDefinition = "UUID")
     private UUID userId;
 
-    @Column(name = "refresh_token", nullable = false, length = 255)
+    @Column(name = "refresh_token", nullable = false, length = 512)
     private String refreshToken;
 
     @Column(name = "expires_at", nullable = false)
@@ -39,6 +39,10 @@ public class RefreshToken {
     @PrePersist
     public void prePersist() {
         OffsetDateTime now = OffsetDateTime.now();
+        if (id == null) {
+            id = UUID.randomUUID();      // 추가
+        }
+
         if (createdAt == null) {
             createdAt = now;
         }

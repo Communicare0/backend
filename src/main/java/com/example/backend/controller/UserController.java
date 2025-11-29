@@ -9,9 +9,12 @@ import com.example.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+// import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,13 +37,12 @@ public class UserController {
 
     @PostMapping("/signup/email")
     @Operation(
-        summary = "Sign up a new user",
-        description = "Sign up a new user",
-        requestBody = @RequestBody(
-            description = "email, password, nickname",
-            required = true,
-            content = @Content(schema = @Schema(implementation = EmailSignupRequest.class))
-        ),
+    summary = "Sign up a new user",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "email, password, nickname",
+        required = true,
+        content = @Content(schema = @Schema(implementation = EmailSignupRequest.class))
+    ), 
         responses = {
             @ApiResponse(
                 responseCode = "201",
@@ -73,7 +75,7 @@ public class UserController {
     @Operation(
         summary = "이메일 로그인",
         description = "이메일과 비밀번호로 로그인합니다.",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(  // 👈 여기
             description = "email, password",
             required = true,
             content = @Content(schema = @Schema(implementation = EmailLoginRequest.class))
@@ -99,11 +101,16 @@ public class UserController {
             EmailLoginResponse response = userService.loginWithEmail(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace(); // 또는 log.error("Login error", e);
+
+            String msg = e.getMessage(); // 디버깅용 추가
+
             if (e.getMessage().contains("not active")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
+            e.printStackTrace(); // 디버깅용
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

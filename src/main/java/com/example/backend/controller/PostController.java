@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+// import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
@@ -119,7 +119,7 @@ public class PostController {
     @Operation(
         summary = "Create a new post",
         description = "Create a new post",
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "title, content, category",
             required = true,
             content = @Content(schema = @Schema(implementation = CreatePostRequest.class))
@@ -140,10 +140,16 @@ public class PostController {
             )
         }
     )
-    public ResponseEntity<PostResponse> createPost(@RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<PostResponse> createPost(@org.springframework.web.bind.annotation.RequestBody CreatePostRequest createPostRequest) {
         UUID userId = getCurrentUserId();
 
         try {
+
+            System.out.println(">>> CreatePostRequest: title=" + createPostRequest.getTitle()
+                + ", content=" + createPostRequest.getContent()
+                + ", category=" + createPostRequest.getCategory());
+
+
             if (createPostRequest.getTitle() == null || createPostRequest.getContent() == null || createPostRequest.getCategory() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -169,7 +175,7 @@ public class PostController {
                 required = true
             )
         },
-        requestBody = @RequestBody(
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             required = true,
             content = @Content(schema = @Schema(implementation = UpdatePostRequest.class))
         ),

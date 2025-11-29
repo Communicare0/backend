@@ -1,22 +1,42 @@
 server:
-  port: 8080
+    port: 8081
 
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-  jpa:
-    hibernate:
-      ddl-auto: create-drop   # 개발용: 매번 테이블 생성/삭제
-    show-sql: true       # 콘솔에 실행 SQL 출력
-    properties:
-      hibernate:
-        format_sql: true
-        default_schema: public
-  flyway:
-    enabled: false  # H2 테스트 시에는 Flyway 비활성화
+    datasource:
+        url: jdbc:postgresql://localhost:5432/communicare?currentSchema=communicare
+        username: postgres
+        password: postgres
+
+    flyway:
+        enabled: true                 # (기본 true) 부팅 시 자동 마이그레이션
+        locations: classpath:db/migration
+        schemas: communicare          # Flyway가 실행할 스키마 지정
+        baseline-on-migrate: true     # 기존 DB에 테이블이 있을 수도 있으면 true 권장
+        validate-on-migrate: true
+        clean-disabled: false         # 실서버 안전장치: clean 금지
+
+    jpa:
+        hibernate:
+            ddl-auto: validate          # Flyway와 함께 사용시 검증만 수행
+        show-sql: true                # 콘솔에 실행 SQL 출력
+        properties:
+            hibernate:
+                format_sql: true
+                default_schema: communicare
+                jdbc.time_zone: UTC
+
+
+# JWT Configuration
+jwt:
+    issuer: "Communicare-Backend"
+    secret-key: "bXkgdmVyeSBzZWNyZXQga2V5IHRoYXQgc2hvdWxkIGJlIGxvbmcgZW5vdWdoIGZvciBicm9rZW4gYW5kIHNob3VsZCBiZSBiYXNlNjQgZW5jb2RlZCBzbyBpdCBpcyBzYWZlIGVub3VnaCBmb3Igam10"
+    access-token-ttl-ms: 3600000  # 1 hour
+    refresh-token-ttl-ms: 604800000  # 7 days
+
+# Swagger/OpenAPI Configuration
+springdoc:
+    api-docs:
+        path: /api-docs
+    swagger-ui:
+        path: /swagger-ui.html
+        operationsSorter: method

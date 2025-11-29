@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,14 +37,25 @@ public class Post {
     private String content;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        name = "category",
+        nullable = false,
+        columnDefinition = "communicare.post_category"
+    )
     private PostCategory category;
 
     @Column(nullable = false)
     private boolean isTranslated = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PostStatus status = PostStatus.VISIBLE;
+   @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        name = "status",
+        nullable = false,
+        columnDefinition = "communicare.post_status"
+    )
+    private PostStatus status; 
 
     @Column(nullable = false)
     private int viewCount = 0;

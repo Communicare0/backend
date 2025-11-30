@@ -10,6 +10,7 @@ import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,17 +28,20 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post getPostById(UUID id) {
-        return postRepository.findById(id).orElse(null);
+        //return postRepository.findById(id).orElse(null);
+        return postRepository.findByPostIdAndStatusAndDeletedAtIsNull(id, PostStatus.VISIBLE);
     }
 
     @Override
     public List<Post> findPostsByUserId(UUID userId) {
-        return postRepository.findByAuthor_UserId(userId);
+        //return postRepository.findByAuthor_UserId(userId);
+        return postRepository.findByAuthor_UserIdAndStatusAndDeletedAtIsNull(userId, PostStatus.VISIBLE);
     }
 
     @Override
     public List<Post> findPostsByCategory(PostCategory category) {
-        return postRepository.findByCategory(category);
+        //return postRepository.findByCategory(category);
+        return postRepository.findByCategoryAndStatusAndDeletedAtIsNull(category, PostStatus.VISIBLE);
     } 
 
     @Override
@@ -55,6 +59,10 @@ public class PostServiceImpl implements PostService {
         post.setLikeCount(0);
         post.setViewCount(0);
         post.setTranslated(false);
+
+        OffsetDateTime now = OffsetDateTime.now();
+        post.setCreatedAt(now);
+        post.setUpdatedAt(now);
 
         return postRepository.save(post);
     }
@@ -83,6 +91,8 @@ public class PostServiceImpl implements PostService {
             post.setContent(updatePostRequest.getContent());
         }
 
+        post.setUpdatedAt(OffsetDateTime.now());
+
         return postRepository.save(post);
     }
 
@@ -102,6 +112,11 @@ public class PostServiceImpl implements PostService {
             return;
         }
 
-        postRepository.deleteById(postId);
+        post.setStatus(PostStatus.DELETED);
+        post.setDeletedAt(OffsetDateTime.now());
+        post.setUpdatedAt(OffsetDateTime.now());
+
+        postRepository.save(post);
+
     }
 }

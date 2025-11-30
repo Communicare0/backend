@@ -5,6 +5,7 @@ import com.example.backend.dto.request.UpdateCommentRequest;
 import com.example.backend.entity.Comment;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.User;
+import com.example.backend.entity.enums.CommentStatus;
 import com.example.backend.repository.CommentRepository;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -42,8 +43,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Comment> findCommentsByPostId(UUID postId) {
-        return commentRepository.findByPost_PostIdOrderByCreatedAtAsc(postId);
+    public List<Comment> findCommentsByPostId(UUID id) {
+        return commentRepository.findByPost_PostIdAndStatusAndDeletedAtIsNullOrderByCreatedAtAsc(
+            id,
+            CommentStatus.VISIBLE
+        );
     }
 
     @Override
@@ -66,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.save(comment);
     }
 
-    @Override
+   @Override
     public Comment updateComment(UUID userId, UUID commentId, UpdateCommentRequest updateCommentRequest) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
 
@@ -76,9 +80,11 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = optionalComment.get();
 
-        // 로그인 유저와 작성자 일치 여부 확인
         if (!comment.getAuthor().getUserId().equals(userId)) {
+            return null; 
+        }
 
+        if (comment.getStatus() != CommentStatus.VISIBLE) {
             return null;
         }
 
@@ -89,23 +95,32 @@ public class CommentServiceImpl implements CommentService {
         comment.setUpdatedAt(OffsetDateTime.now());
 
         return commentRepository.save(comment);
-    }
+    } 
 
     @Override
     public void deleteComment(UUID userId, UUID id) {
         Optional<Comment> optionalComment = commentRepository.findById(id);
 
         if (optionalComment.isEmpty()) {
-            return; // 없는 댓글이면 그냥 무시
+            return;
         }
 
         Comment comment = optionalComment.get();
 
-        // 로그인 유저와 작성자 일치 여부 확인
         if (!comment.getAuthor().getUserId().equals(userId)) {
             return;
         }
 
-        commentRepository.deleteById(id);
-    }
+        if (comment.getDeletedAt() != null || comment.getStatus() != CommentStatus.VISIBLE) {
+            return;
+        }
+
+        // 소프트 삭제 처리
+        comment.setStatus(CommentStatus.HIDDEN);
+        OffsetDateTime now = OffsetDateTime.now();
+        comment.setDeletedAt(now);
+        comment.setUpdatedAt(now);
+
+        commentRepository.save(comment);
+    } 
 }

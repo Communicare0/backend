@@ -11,6 +11,7 @@ import com.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,9 +52,16 @@ public class CommentServiceImpl implements CommentService {
         Post post = postRepository.getReferenceById(createCommentRequest.getPostId());
 
         Comment comment = new Comment();
+        comment.setCommentId(UUID.randomUUID());
         comment.setAuthor(user);
         comment.setPost(post);
         comment.setContent(createCommentRequest.getContent());
+
+        var now = OffsetDateTime.now();
+        comment.setCreatedAt(now);
+        comment.setUpdatedAt(now);
+
+        comment.setTranslated(false);
 
         return commentRepository.save(comment);
     }
@@ -77,6 +85,8 @@ public class CommentServiceImpl implements CommentService {
         if (updateCommentRequest.getContent() != null) {
             comment.setContent(updateCommentRequest.getContent());
         }
+
+        comment.setUpdatedAt(OffsetDateTime.now());
 
         return commentRepository.save(comment);
     }

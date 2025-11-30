@@ -10,6 +10,9 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 /** 3. Comment */
 @Getter
 @Setter
@@ -47,6 +50,8 @@ public class Comment {
   private boolean isTranslated = false;
 
   @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "status", nullable = false, columnDefinition = "communicare.comment_status")
   private CommentStatus status = CommentStatus.VISIBLE;
 
   @Column(nullable = false)

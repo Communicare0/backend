@@ -4,6 +4,7 @@ import com.example.backend.dto.request.CreatePostRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.entity.Post;
 import org.springframework.stereotype.Service;
+import com.example.backend.entity.enums.PostCategory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface PostService {
 
     List<Post> findPostsByUserId(UUID userId);
 
-    List<Post> findPostsByCategory(String category);
+    List<Post> findPostsByCategory(PostCategory category);
 
     Post createPost(UUID userId, CreatePostRequest createPostRequest);
 

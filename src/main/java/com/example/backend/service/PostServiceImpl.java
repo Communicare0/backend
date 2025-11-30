@@ -3,6 +3,7 @@ import com.example.backend.dto.request.CreatePostRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.entity.Post;
 import com.example.backend.entity.User;
+import com.example.backend.entity.enums.PostCategory;
 import com.example.backend.entity.enums.PostStatus;
 import com.example.backend.repository.PostRepository;
 import com.example.backend.repository.UserRepository;
@@ -35,9 +36,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findPostsByCategory(String category) {
-        return List.of();
-    }
+    public List<Post> findPostsByCategory(PostCategory category) {
+        return postRepository.findByCategory(category);
+    } 
 
     @Override
     @Transactional

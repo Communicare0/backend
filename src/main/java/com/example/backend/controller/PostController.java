@@ -115,6 +115,45 @@ public class PostController {
         return ResponseEntity.ok(postResponse);
     }
 
+    @GetMapping("/category/{category}")
+    @Operation(
+        summary = "Get posts by category",
+        description = "Retrieves a list of posts filtered by category",
+        parameters = {
+            @Parameter(
+                name = "category",
+                description = "Post category (예: GENERAL, QNA, NOTICE 등 enum 값)",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Posts found",
+                content = @Content(schema = @Schema(implementation = PostResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Invalid category value"
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        }
+    )
+    public ResponseEntity<List<PostResponse>> getPostsByCategory(
+            @PathVariable PostCategory category
+    ) {
+        List<Post> posts = postService.findPostsByCategory(category);
+
+        List<PostResponse> responses = posts.stream()
+                .map(PostResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(responses);
+    }
+
     @PostMapping
     @Operation(
         summary = "Create a new post",

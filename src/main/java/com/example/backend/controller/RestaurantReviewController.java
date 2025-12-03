@@ -1,0 +1,290 @@
+package com.example.backend.controller;
+
+import com.example.backend.dto.request.CreateRestaurantReviewRequest;
+import com.example.backend.dto.request.UpdateRestaurantReviewRequest;
+import com.example.backend.dto.response.RestaurantReviewListResponse;
+import com.example.backend.dto.response.RestaurantReviewResponse;
+import com.example.backend.entity.RestaurantReview;
+import com.example.backend.service.RestaurantReviewService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/v1/restaurantReviews")
+@Tag(name = "RestaurantReview", description = "RestaurantReview API")
+public class RestaurantReviewController {
+
+    private final RestaurantReviewService restaurantReviewService;
+
+    public RestaurantReviewController(RestaurantReviewService restaurantReviewService) {
+        this.restaurantReviewService = restaurantReviewService;
+    }
+
+
+
+    @GetMapping("/restaurant/{restaurantId}")
+    @Operation(
+        summary = "해당 레스토랑의 리뷰 목록 조회",
+        parameters = {
+            @Parameter(
+                name = "restaurantId",
+                description = "리뷰를 조회할 레스토랑의 UUID",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "리뷰 목록 조회 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewResponse.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<List<RestaurantReviewResponse>> getReviewsByRestaurant(@PathVariable UUID restaurantId) {
+        List<RestaurantReview> reviews = restaurantReviewService.findReviewsByRestaurantId(restaurantId);
+
+        List<RestaurantReviewResponse> response =
+            reviews.stream()
+                    .map(RestaurantReviewResponse::fromEntity)
+                    .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user")
+    @Operation(
+        summary = "현재 로그인한 사용자의 리뷰 목록 조회",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "사용자 리뷰 목록 조회 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewResponse.class))
+            ),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<List<RestaurantReviewResponse>> getUserReviews(Authentication authentication) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        List<RestaurantReview> reviews = restaurantReviewService.findReviewsByUserId(userId);
+
+        List<RestaurantReviewResponse> response =
+            reviews.stream()
+                    .map(RestaurantReviewResponse::fromEntity)
+                    .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{reviewId}")
+    @Operation(
+        summary = "특정 리뷰 조회",
+        parameters = {
+            @Parameter(
+                name = "reviewId",
+                description = "조회할 리뷰의 UUID",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "리뷰 조회 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewResponse.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<RestaurantReviewResponse> getReviewById(@PathVariable UUID reviewId) {
+        RestaurantReview review = restaurantReviewService.getReviewById(reviewId);
+
+        if (review == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(review);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    @Operation(
+        summary = "리뷰 생성",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "restaurantId, rating, ratingGoodReason, ratingBadReason, ratingOtherReason",
+            required = true,
+            content = @Content(schema = @Schema(implementation = CreateRestaurantReviewRequest.class))
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "리뷰 생성 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewResponse.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<RestaurantReviewResponse> createReview(
+            Authentication authentication,
+            @RequestBody CreateRestaurantReviewRequest request
+    ) {
+        try {
+            if (request.getRestaurantId() == null || request.getRating() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            // 평점 유효성 검사 (1-5)
+            if (request.getRating() < 1 || request.getRating() > 5) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            UUID userId = (UUID) authentication.getPrincipal();
+
+            RestaurantReview created = restaurantReviewService.createReview(userId, request);
+            RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(created);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{reviewId}")
+    @Operation(
+        summary = "리뷰 수정",
+        parameters = {
+            @Parameter(
+                name = "reviewId",
+                description = "수정할 리뷰의 UUID",
+                required = true
+            )
+        },
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            required = true,
+            content = @Content(schema = @Schema(implementation = UpdateRestaurantReviewRequest.class))
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "리뷰 수정 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewResponse.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 권한 없음"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<RestaurantReviewResponse> updateReview(
+            Authentication authentication,
+            @PathVariable UUID reviewId,
+            @RequestBody UpdateRestaurantReviewRequest request
+    ) {
+        try {
+            if (reviewId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            // 평점 유효성 검사 (1-5)
+            if (request.getRating() != null && (request.getRating() < 1 || request.getRating() > 5)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            UUID userId = (UUID) authentication.getPrincipal();
+
+            RestaurantReview updated = restaurantReviewService.updateReview(userId, reviewId, request);
+            if (updated == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(updated);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{reviewId}")
+    @Operation(
+        summary = "리뷰 삭제",
+        parameters = {
+            @Parameter(
+                name = "reviewId",
+                description = "삭제할 리뷰의 UUID",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(responseCode = "204", description = "리뷰 삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "권한 없음"),
+            @ApiResponse(responseCode = "401", description = "인증 실패"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<Void> deleteReview(
+            Authentication authentication,
+            @PathVariable UUID reviewId
+    ) {
+        try {
+            if (reviewId == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            UUID userId = (UUID) authentication.getPrincipal();
+
+            restaurantReviewService.deleteReview(userId, reviewId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/restaurant/{restaurantId}/summary")
+    @Operation(
+        summary = "레스토랑 리뷰 요약 정보 조회",
+        parameters = {
+            @Parameter(
+                name = "restaurantId",
+                description = "리뷰 요약을 조회할 레스토랑의 UUID",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "리뷰 요약 정보 조회 성공",
+                content = @Content(schema = @Schema(implementation = RestaurantReviewListResponse.class))
+            ),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<RestaurantReviewListResponse> getRestaurantReviewSummary(@PathVariable UUID restaurantId) {
+        List<RestaurantReview> reviews = restaurantReviewService.findReviewsByRestaurantId(restaurantId);
+
+        List<RestaurantReviewResponse> reviewResponses =
+            reviews.stream()
+                    .map(RestaurantReviewResponse::fromEntity)
+                    .toList();
+
+        RestaurantReviewListResponse response = new RestaurantReviewListResponse(
+            restaurantId,
+            reviewResponses.size(),
+            reviewResponses
+        );
+
+        return ResponseEntity.ok(response);
+    }
+}

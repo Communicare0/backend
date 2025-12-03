@@ -48,11 +48,14 @@ public class User {
     @Column(length = 20)
     private String studentId;
 
-    @Column(length = 50)
-    private String nationality;
+    @Enumerated(EnumType.STRING)
+    private Nationality nationality;
 
-    @Column(length = 10)
-    private String language;
+    @Enumerated(EnumType.STRING)
+    private PreferredFoodType preferredFoodType;
+
+    @Enumerated(EnumType.STRING)
+    private Language language;
 
     @Column(length = 2048)
     private String profileImageUrl;

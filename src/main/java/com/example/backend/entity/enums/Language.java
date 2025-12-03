@@ -1,5 +1,5 @@
 package com.example.backend.entity.enums;
 
 public enum Language {
-  KO, EN, JA, ZH, FR, ES;
+    KO, EN, ZH, JA, ES, FR, DE, RU, AR, OTHER
 }

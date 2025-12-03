@@ -4,10 +4,12 @@ import com.example.backend.JwtTokenProvider;
 import com.example.backend.config.JwtConfig;
 import com.example.backend.dto.request.EmailLoginRequest;
 import com.example.backend.dto.request.EmailSignupRequest;
+import com.example.backend.dto.request.UpdateUserRequest;
 import com.example.backend.dto.response.EmailLoginResponse;
 import com.example.backend.entity.RefreshToken;
 import com.example.backend.entity.User;
 import com.example.backend.entity.enums.AccountStatus;
+import jakarta.persistence.EntityNotFoundException;
 import com.example.backend.repository.RefreshTokenRepository;
 import com.example.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -86,5 +88,31 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public User updateUser(UUID userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+
+        // 부분 수정이 가능하도록 null이 아닌 값만 업데이트
+        if (request.getDepartment() != null) {
+            user.setDepartment(request.getDepartment());
+        }
+        if (request.getStudentId() != null) {
+            user.setStudentId(request.getStudentId());
+        }
+        if (request.getNationality() != null) {
+            user.setNationality(request.getNationality());
+        }
+        if (request.getPreferredFoodType() != null) {
+            user.setPreferredFoodType(request.getPreferredFoodType());
+        }
+        if (request.getLanguage() != null) {
+            user.setLanguage(request.getLanguage());
+        }
+
+        return userRepository.save(user);
     }
 }

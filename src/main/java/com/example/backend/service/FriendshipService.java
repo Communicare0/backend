@@ -18,4 +18,10 @@ public interface FriendshipService {
     Friendship acceptRequest(UUID userId, UUID friendshipId);
 
     void rejectRequest(UUID userId, UUID friendshipId);
+
+    List<Friendship> getMyFriends(UUID userId);
+
+    void unfriend(UUID userId, UUID friendshipId);
+    
+    void cancelRequest(UUID userId, UUID friendshipId);
 }

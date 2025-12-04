@@ -27,10 +27,13 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     @Query("""
         select f from Friendship f
         where f.deletedAt is null
-          and ((f.requester.userId = :user1 and f.addressee.userId = :user2)
-               or (f.requester.userId = :user2 and f.addressee.userId = :user1))
+          and (
+              (f.requester.userId = :user1 and f.addressee.userId = :user2)
+              or
+              (f.requester.userId = :user2 and f.addressee.userId = :user1)
+          )
         """)
-    Optional<Friendship> findActiveBetween(UUID user1, UUID user2);
+    Optional<Friendship> findBetweenUsers(UUID user1, UUID user2);
 
-    Optional<Friendship> findByFriendshipIdAndDeletedAtIsNull(UUID friendshipId);
+    Optional<Friendship> findByFriendshipIdAndDeletedAtIsNull(UUID friendshipId); 
 }

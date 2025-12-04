@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,11 +43,18 @@ public class FriendshipServiceImpl implements FriendshipService {
         }
 
         // 이미 존재하는 관계(PENDING/ACCEPTED/BLOCKED 등) 있는지 체크
-        Optional<Friendship> existing =
-                friendshipRepository.findActiveBetween(requester.getUserId(), addressee.getUserId());
-        if (existing.isPresent()) {
-            throw new IllegalStateException("이미 친구 관계가 존재하거나 요청이 진행 중입니다.");
-        }
+       friendshipRepository.findBetweenUsers(requester.getUserId(), addressee.getUserId())
+                .ifPresent(existing -> {
+                    if (existing.getDeletedAt() == null) {
+                        // 아직 살아있는 관계
+                        if (existing.getStatus() == FriendshipStatus.ACCEPTED) {
+                            throw new IllegalStateException("이미 친구 상태입니다.");
+                        }
+                        if (existing.getStatus() == FriendshipStatus.PENDING) {
+                            throw new IllegalStateException("이미 친구 요청이 진행 중입니다.");
+                        }
+                    }
+                }); 
 
         Friendship friendship = new Friendship();
         friendship.setFriendshipId(UUID.randomUUID());
@@ -114,5 +122,59 @@ public class FriendshipServiceImpl implements FriendshipService {
         friendship.setDeletedAt(OffsetDateTime.now());
         friendship.setUpdatedAt(OffsetDateTime.now());
         friendshipRepository.save(friendship);
+    }
+
+    // 친구 목록 조회 (ACCEPTED 상태만)
+    @Override
+    @Transactional(readOnly = true)
+    public List<Friendship> getMyFriends(UUID userId) {
+        List<Friendship> result = new ArrayList<>();
+
+        // 내가 requester 인 경우
+        result.addAll(friendshipRepository.findByRequester_UserIdAndStatusAndDeletedAtIsNull(
+                userId, FriendshipStatus.ACCEPTED
+        ));
+
+        // 내가 addressee 인 경우
+        result.addAll(friendshipRepository.findByAddressee_UserIdAndStatusAndDeletedAtIsNull(
+                userId, FriendshipStatus.ACCEPTED
+        ));
+
+        return result;
+    }
+
+     // 친구 삭제
+    @Override
+    public void unfriend(UUID userId, UUID friendshipId) {
+        Friendship f = friendshipRepository.findById(friendshipId)
+                .orElseThrow(() -> new IllegalArgumentException("친구 관계를 찾을 수 없습니다."));
+
+        if (f.getStatus() != FriendshipStatus.ACCEPTED) {
+            throw new IllegalStateException("ACCEPTED 상태의 친구만 삭제할 수 있습니다.");
+        }
+
+        if (!f.getRequester().getUserId().equals(userId) &&
+            !f.getAddressee().getUserId().equals(userId)) {
+            throw new IllegalStateException("이 친구 관계를 삭제할 권한이 없습니다.");
+        }
+
+        friendshipRepository.delete(f);
+    }
+
+    // 보낸 친구 요청 취소
+    @Override
+    public void cancelRequest(UUID userId, UUID friendshipId) {
+        Friendship f = friendshipRepository.findById(friendshipId)
+                .orElseThrow(() -> new IllegalArgumentException("친구 요청을 찾을 수 없습니다."));
+
+        if (!f.getRequester().getUserId().equals(userId)) {
+            throw new IllegalStateException("본인이 보낸 친구 요청만 취소할 수 있습니다.");
+        }
+
+        if (f.getStatus() != FriendshipStatus.PENDING) {
+            throw new IllegalStateException("PENDING 상태의 요청만 취소할 수 있습니다.");
+        }
+
+        friendshipRepository.delete(f);
     }
 }

@@ -111,4 +111,53 @@ public class FriendshipController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    // 구 목록 조회 
+    @GetMapping("/my")
+    @Operation(summary = "내 친구 목록 조회")
+    public ResponseEntity<List<FriendshipResponse>> getMyFriends(
+            Authentication authentication
+    ) {
+        UUID userId = (UUID) authentication.getPrincipal();
+        List<Friendship> list = friendshipService.getMyFriends(userId);
+        return ResponseEntity.ok(
+                list.stream().map(FriendshipResponse::fromEntity).toList()
+        );
+    }
+
+    // 친구 삭제
+    @DeleteMapping("/{friendshipId}")
+    @Operation(summary = "친구 삭제")
+    public ResponseEntity<Void> unfriend(
+            Authentication authentication,
+            @PathVariable UUID friendshipId
+    ) {
+        try {
+            UUID userId = (UUID) authentication.getPrincipal();
+            friendshipService.unfriend(userId, friendshipId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // 친구 요청 취소
+    @PostMapping("/{friendshipId}/cancel")
+    @Operation(summary = "내가 보낸 친구 요청 취소")
+    public ResponseEntity<Void> cancelRequest(
+            Authentication authentication,
+            @PathVariable UUID friendshipId
+    ) {
+        try {
+            UUID userId = (UUID) authentication.getPrincipal();
+            friendshipService.cancelRequest(userId, friendshipId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

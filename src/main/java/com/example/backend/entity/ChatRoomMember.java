@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "chat_room_members", schema = "communicare",
   uniqueConstraints = {

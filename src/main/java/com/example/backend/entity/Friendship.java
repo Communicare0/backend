@@ -6,7 +6,14 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
 /** 2. Friendship */
+@Getter
+@Setter
 @Entity
 @Table(name = "friendships", schema = "communicare",
   uniqueConstraints = {

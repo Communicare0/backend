@@ -6,6 +6,15 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "chat_rooms", schema = "communicare")
 public class ChatRoom {
@@ -14,7 +23,12 @@ public class ChatRoom {
   private UUID chatRoomId;
 
   @Enumerated(EnumType.STRING)
-  @Column(name="chat_room_type", nullable=false)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(
+      name = "chat_room_type",
+      nullable = false,
+      columnDefinition = "communicare.chat_room_type"
+  )
   private ChatRoomType chatRoomType;
 
   @Column(length = 64)
@@ -23,9 +37,14 @@ public class ChatRoom {
   @Column(length = 255)
   private String photoUrl; // group only
 
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private ChatRoomStatus status = ChatRoomStatus.VISIBLE;
+  @Column(
+      name = "status",
+      nullable = false,
+      columnDefinition = "chat_room_status" 
+  )
+private ChatRoomStatus status = ChatRoomStatus.VISIBLE;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name="last_chat_id", foreignKey=@ForeignKey(name="fk_chatroom_last_chat"))
@@ -38,5 +57,7 @@ public class ChatRoom {
   private OffsetDateTime updatedAt;
 
   private OffsetDateTime deletedAt;
+  
   // getters/setters ...
+
 }

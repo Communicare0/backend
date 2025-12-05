@@ -49,13 +49,31 @@ public class User {
     private String studentId;
 
     @Enumerated(EnumType.STRING)
-    private Nationality nationality;
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        name = "nationality",
+        columnDefinition = "communicare.nationality"
+    )
+    @Builder.Default
+    private Nationality nationality = Nationality.KOREAN;
+    
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        name = "language",
+        columnDefinition = "communicare.language"
+    )
+    @Builder.Default
+    private Language language = Language.KO;
 
     @Enumerated(EnumType.STRING)
-    private PreferredFoodType preferredFoodType;
-
-    @Enumerated(EnumType.STRING)
-    private Language language;
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        name = "preferred_food_type",
+        columnDefinition = "communicare.preferred_food_type"
+    )
+    @Builder.Default
+    private PreferredFoodType preferredFoodType = PreferredFoodType.NONE;
 
     @Column(length = 2048)
     private String profileImageUrl;

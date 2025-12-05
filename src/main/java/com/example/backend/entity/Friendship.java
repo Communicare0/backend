@@ -6,7 +6,17 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
 /** 2. Friendship */
+@Getter
+@Setter
 @Entity
 @Table(name = "friendships", schema = "communicare",
   uniqueConstraints = {
@@ -16,7 +26,8 @@ import java.util.UUID;
     @Index(name="ix_friend_requester", columnList = "requester_id"),
     @Index(name="ix_friend_addressee", columnList = "addressee_id")
   })
-public class Friendship {
+
+  public class Friendship {
   @Id
   @Column(name="friendship_id", columnDefinition = "uuid")
   private UUID friendshipId;
@@ -32,7 +43,8 @@ public class Friendship {
   private User addressee;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "friendship_status")
+  @JdbcType(PostgreSQLEnumJdbcType.class)
   private FriendshipStatus status = FriendshipStatus.PENDING;
 
   @Column(nullable = false)

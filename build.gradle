@@ -28,6 +28,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.projectlombok:lombok'
@@ -61,6 +63,7 @@ dependencies {
     // ✅ Lombok (테스트 소스)
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
 }
 
 tasks.named('test') {

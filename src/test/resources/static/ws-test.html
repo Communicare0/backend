@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Chat Test</title>
+</head>
+<body>
+<h1>WebSocket Chat Test</h1>
+
+<div>
+  <label>Room ID: <input id="roomId" value="채팅방-UUID-여기에" style="width: 320px" /></label>
+  <button onclick="connect()">Connect</button>
+  <button onclick="disconnect()">Disconnect</button>
+</div>
+
+<hr/>
+
+<div>
+  <h3>Send Message</h3>
+  <input id="messageInput" style="width: 320px" placeholder="메시지 입력"/>
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<hr/>
+
+<div>
+  <h3>Received messages</h3>
+  <pre id="messages" style="border: 1px solid #ccc; padding: 8px; height: 200px; overflow-y: auto;"></pre>
+</div>
+
+<!-- SockJS + STOMP CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script>
+  let stompClient = null;
+
+  function log(msg) {
+    const area = document.getElementById('messages');
+    area.textContent += msg + "\n";
+    area.scrollTop = area.scrollHeight;
+  }
+
+  function connect() {
+    const roomId = document.getElementById('roomId').value.trim();
+    if (!roomId) {
+      alert("roomId 먼저 입력해줘!");
+      return;
+    }
+
+    // ✅ 백엔드 WebSocketConfig에서 설정한 endpoint
+    //   registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    // 콘솔 로그 너무 많으면 => stompClient.debug = null;
+    stompClient.debug = null;
+
+    stompClient.connect(
+      {},                   // 여기서 JWT 헤더도 넣을 수 있음 (필요하다면)
+      function(frame) {     // onConnect
+        log('Connected: ' + frame);
+        subscribeRoom(roomId);
+      },
+      function(error) {     // onError
+        log('ERROR: ' + error);
+      }
+    );
+  }
+
+  function subscribeRoom(roomId) {
+
+    // ✅ 여기서 구독 경로는 백엔드 @SendTo / convertAndSend 와 맞춰야 함
+    // 예를 들어 ChatMessageController에서:
+    // simpMessagingTemplate.convertAndSend("/topic/chat/" + roomId, response);
+    const destination = `/topic/chat/${roomId}`;
+
+    stompClient.subscribe(destination, function(messageFrame) {
+      const body = JSON.parse(messageFrame.body);
+      log(`[RECV] ${body.senderNickname || body.senderId || ''} : ${body.content}`);
+    });
+
+    log('Subscribed to ' + destination);
+  }
+
+  function sendMessage() {
+    if (!stompClient || !stompClient.connected) {
+      alert("먼저 Connect 버튼 눌러서 연결해줘!");
+      return;
+    }
+
+    const roomId = document.getElementById('roomId').value.trim();
+    const content = document.getElementById('messageInput').value.trim();
+    if (!content) return;
+
+    // ✅ 여기서 보내는 경로도 백엔드 @MessageMapping 과 맞춰야 함
+    // 예) @MessageMapping("/chat/{roomId}")
+    const destination = `/app/chat/${roomId}`;
+
+    const payload = {
+      content: content,
+      messageType: "TEXT"
+      // senderId 는 서버에서 JWT 기반으로 채워도 되고,
+      // 필요하면 여기서도 보낼 수 있음
+    };
+
+    stompClient.send(destination, {}, JSON.stringify(payload));
+    log(`[SEND] ${content}`);
+    document.getElementById('messageInput').value = "";
+  }
+
+  function disconnect() {
+    if (stompClient !== null) {
+      stompClient.disconnect(() => {
+        log('Disconnected');
+      });
+    }
+  }
+</script>
+</body>
+</html>

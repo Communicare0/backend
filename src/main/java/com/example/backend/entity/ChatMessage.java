@@ -5,6 +5,15 @@ import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "chat_messages", schema = "communicare",
   indexes = {
@@ -30,7 +39,12 @@ public class ChatMessage {
   private String content;
 
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(
+      name = "message_type",
+      nullable = false,
+      columnDefinition = "communicare.message_type"  // 실제 DB enum 타입명
+  )
   private MessageType messageType = MessageType.TEXT;
 
   @Column(nullable = false)

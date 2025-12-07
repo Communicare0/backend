@@ -1,7 +1,9 @@
 package com.example.backend.service;
 import com.example.backend.dto.request.CreatePostRequest;
+import com.example.backend.dto.request.CreatePostTranslatedRequest;
 import com.example.backend.dto.request.UpdatePostRequest;
 import com.example.backend.entity.Post;
+import com.example.backend.entity.PostTranslated;
 import com.example.backend.entity.User;
 import com.example.backend.entity.enums.PostCategory;
 import com.example.backend.entity.enums.PostStatus;
@@ -20,10 +22,16 @@ import java.util.UUID;
 public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostTranslatedService postTranslatedService;
 
-    public PostServiceImpl(UserRepository userRepository, PostRepository postRepository) {
+    public PostServiceImpl(
+        UserRepository userRepository,
+        PostRepository postRepository,
+        PostTranslatedService postTranslatedService
+    ) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.postTranslatedService = postTranslatedService;
     }
 
     @Override
@@ -42,7 +50,7 @@ public class PostServiceImpl implements PostService {
     public List<Post> findPostsByCategory(PostCategory category) {
         //return postRepository.findByCategory(category);
         return postRepository.findByCategoryAndStatusAndDeletedAtIsNull(category, PostStatus.VISIBLE);
-    } 
+    }
 
     @Override
     @Transactional

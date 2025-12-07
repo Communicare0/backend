@@ -1,5 +1,11 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.request.CreatePostTranslatedRequest;
+import com.example.backend.dto.response.PostTranslatedResponse;
+import com.example.backend.entity.PostTranslated;
+import com.example.backend.entity.User;
+import com.example.backend.repository.UserRepository;
+import com.example.backend.service.PostTranslatedService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -30,9 +36,17 @@ import java.util.UUID;
 @Tag(name = "Post", description = "Post API")
 public class PostController {
     private final PostService postService;
+    private final UserRepository userRepository;
+    private final PostTranslatedService postTranslatedService;
 
-    public PostController(PostService postService) {
+    public PostController(
+        PostService postService,
+        UserRepository userRepository,
+        PostTranslatedService postTranslatedService
+    ) {
         this.postService = postService;
+        this.userRepository = userRepository;
+        this.postTranslatedService = postTranslatedService;
     }
 
     private UUID getCurrentUserId() {
@@ -61,7 +75,7 @@ public class PostController {
             }
     )
     public ResponseEntity<List<PostResponse>> getPosts() {
-        
+
         UUID userId = getCurrentUserId();
 
         List<Post> posts = postService.findPostsByUserId(userId);
@@ -103,8 +117,8 @@ public class PostController {
         }
     )
     public ResponseEntity<PostResponse> getPost(@PathVariable UUID id) {
-        
-        UUID userId = getCurrentUserId(); 
+
+        UUID userId = getCurrentUserId();
 
         if (id == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -113,6 +127,48 @@ public class PostController {
         Post post = postService.getPostById(id);
         PostResponse postResponse = PostResponse.fromEntity(post);
         return ResponseEntity.ok(postResponse);
+    }
+
+    @GetMapping("/translate/{id}")
+    @Operation(
+        summary = "Get a translated post",
+        parameters = {
+            @Parameter(
+                name = "id",
+                description = "UUID of the specific post",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                content = @Content(schema = @Schema(implementation = PostTranslatedResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "500"
+            )
+        }
+    )
+    public ResponseEntity<PostTranslatedResponse> getPostTranslated(@PathVariable UUID id) {
+        UUID userId = getCurrentUserId();
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        Post post = postService.getPostById(id);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        CreatePostTranslatedRequest createPostTranslatedRequest = new CreatePostTranslatedRequest();
+        createPostTranslatedRequest.setPostId(post.getPostId());
+        createPostTranslatedRequest.setTitle(post.getTitle());
+        createPostTranslatedRequest.setContent(post.getContent());
+        createPostTranslatedRequest.setLanguage(user.getLanguage());
+
+        PostTranslated postTranslated = postTranslatedService.createPostTranslated(createPostTranslatedRequest);
+
+        PostTranslatedResponse postTranslatedResponse = new PostTranslatedResponse();
+        postTranslatedResponse.setTranslatedTitle(postTranslated.getTranslatedTitle());
+        postTranslatedResponse.setTranslatedContent(postTranslated.getTranslatedContent());
+        return ResponseEntity.ok(postTranslatedResponse);
     }
 
     @GetMapping("/category/{category}")
@@ -231,7 +287,7 @@ public class PostController {
         }
     )
     public ResponseEntity<PostResponse> updatePost(@PathVariable UUID id, @RequestBody UpdatePostRequest updatePostRequest) {
-        
+
         UUID userId = getCurrentUserId();
 
         try {

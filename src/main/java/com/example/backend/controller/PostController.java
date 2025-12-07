@@ -166,8 +166,8 @@ public class PostController {
         PostTranslated postTranslated = postTranslatedService.createPostTranslated(createPostTranslatedRequest);
 
         PostTranslatedResponse postTranslatedResponse = new PostTranslatedResponse();
-        postTranslatedResponse.setTranslatedTitle(postTranslatedResponse.getTranslatedTitle());
-        postTranslatedResponse.setTranslatedContent(postTranslatedResponse.getTranslatedContent());
+        postTranslatedResponse.setTranslatedTitle(postTranslated.getTranslatedTitle());
+        postTranslatedResponse.setTranslatedContent(postTranslated.getTranslatedContent());
         return ResponseEntity.ok(postTranslatedResponse);
     }
 

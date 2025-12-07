@@ -33,7 +33,7 @@ public class Restaurant {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(
         nullable = false,
-        name = "restaurant_status",
+        name = "status",
         columnDefinition = "communicare.restaurant_status"
     )
     @Builder.Default

@@ -361,4 +361,78 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PostMapping("/{id}/like")
+    @Operation(
+        summary = "Like a post",
+        description = "현재 로그인한 사용자가 해당 게시글에 좋아요를 누릅니다.",
+        parameters = {
+            @Parameter(
+                name = "id",
+                description = "UUID of the post",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Post liked successfully",
+                content = @Content(schema = @Schema(implementation = PostResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        }
+    )
+    public ResponseEntity<PostResponse> likePost(@PathVariable UUID id) {
+        UUID userId = getCurrentUserId();
+
+        try {
+            Post likedPost = postService.likePost(userId, id);
+            PostResponse response = PostResponse.fromEntity(likedPost);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{id}/like")
+    @Operation(
+        summary = "Unlike a post",
+        description = "현재 로그인한 사용자가 해당 게시글에 누른 좋아요를 취소합니다.",
+        parameters = {
+            @Parameter(
+                name = "id",
+                description = "UUID of the post",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Post unliked successfully",
+                content = @Content(schema = @Schema(implementation = PostResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        }
+    )
+    public ResponseEntity<PostResponse> unlikePost(@PathVariable UUID id) {
+        UUID userId = getCurrentUserId();
+
+        try {
+            Post unlikedPost = postService.unlikePost(userId, id);
+            PostResponse response = PostResponse.fromEntity(unlikedPost);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

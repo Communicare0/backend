@@ -23,6 +23,8 @@ public class PostResponse {
   private String authorStudentYear;  // 예: "21학번"
   private Nationality authorNationality; // 작성자 국적
 
+  private UUID authorId;
+
   private String title;
 
   private String content;
@@ -85,6 +87,7 @@ public class PostResponse {
     response.setLikeCount(post.getLikeCount());
     response.setCreatedAt(post.getCreatedAt());
     response.setUpdatedAt(post.getUpdatedAt());
+    response.setAuthorId(post.getAuthor().getUserId());
     return response;
   }
 }

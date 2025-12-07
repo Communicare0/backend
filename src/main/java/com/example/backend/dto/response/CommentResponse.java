@@ -18,6 +18,8 @@ public class CommentResponse {
     private UUID postId;
     private String content;
 
+    private UUID authorId;
+
     private String authorDepartment;       
     private String authorStudentYear;      
     private Nationality authorNationality;
@@ -48,6 +50,7 @@ public class CommentResponse {
         response.setCommentId(comment.getCommentId());
         response.setPostId(comment.getPost().getPostId());
         response.setContent(comment.getContent());
+        response.setAuthorId(author.getUserId());
 
         if (author != null) {
             response.setAuthorDepartment(author.getDepartment());

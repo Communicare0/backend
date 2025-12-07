@@ -22,4 +22,6 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
             UUID chatRoomId,
             UUID userId
     );
+
+    long countByChatRoom_ChatRoomIdAndDeletedAtIsNull(UUID chatRoomId);
 }

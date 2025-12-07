@@ -127,4 +127,33 @@ public class ChatRoomController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @PostMapping("/{roomId}/leave")
+    @Operation(
+        summary = "채팅방 나가기",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "채팅방 나가기 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "401", description = "인증 필요"),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류")
+        }
+    )
+    public ResponseEntity<Void> leaveChatRoom(
+            Authentication authentication,
+            @PathVariable UUID roomId
+    ) {
+        try {
+            UUID userId = extractUserId(authentication);
+
+            chatRoomService.leaveChatRoom(userId, roomId);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

@@ -99,6 +99,6 @@ public class PostTranslatedServiceImpl implements PostTranslatedService {
 
         postTranslated.setTranslatedContent(Objects.requireNonNullElse(translatedContent, "번역 불가한 항목입니다."));
 
-        return postTranslatedRepository.save(postTranslated);
+        return postTranslated; // 레포에 저장하지 않음. 일단 매번 번역하는것으로
     }
 }

@@ -12,5 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreatePostTranslatedRequest {
     private UUID postId;
+    private String title;
+    private String content;
     private Language language;
 }

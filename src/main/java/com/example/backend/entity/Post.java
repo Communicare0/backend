@@ -48,14 +48,14 @@ public class Post {
     @Column(nullable = false)
     private boolean isTranslated = false;
 
-   @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(
         name = "status",
         nullable = false,
         columnDefinition = "communicare.post_status"
     )
-    private PostStatus status; 
+    private PostStatus status;
 
     @Column(nullable = false)
     private int viewCount = 0;

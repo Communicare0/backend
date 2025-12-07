@@ -14,32 +14,43 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "post_translated", schema = "communicare",
-  uniqueConstraints = {
-    @UniqueConstraint(name="uq_post_lang", columnNames = {"post_id", "language"})
-  },
-  indexes = {
-    @Index(name="ix_post_translated_post", columnList = "post_id")
-  }
+    uniqueConstraints = {
+        @UniqueConstraint(name="uq_post_lang", columnNames = {"post_id", "language"})
+    },
+    indexes = {
+        @Index(name="ix_post_translated_post", columnList = "post_id")
+    }
 )
 public class PostTranslated {
-  @Id
-  @Column(name = "postTranslated_id", columnDefinition = "uuid")
-  private UUID translationId;
+    @Id
+    @Column(name = "postTranslated_id", columnDefinition = "uuid")
+    private UUID translationId;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name="post_id", nullable=false, foreignKey=@ForeignKey(name="fk_translated_post"))
-  private Post post;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="post_id", nullable=false, foreignKey=@ForeignKey(name="fk_translated_post"))
+    private Post post;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private Language language;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
 
-  @Column(columnDefinition = "text")
-  private String translatedTitle;
+    @Column(columnDefinition = "text")
+    private String translatedTitle;
 
-  @Column(columnDefinition = "text")
-  private String translatedContent;
+    @Column(columnDefinition = "text")
+    private String translatedContent;
 
-  @Column(nullable = false)
-  private OffsetDateTime translatedAt;
+    @Column(nullable = false)
+    private OffsetDateTime translatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        OffsetDateTime now = OffsetDateTime.now();
+        if (translationId == null) {
+            translationId = UUID.randomUUID();
+        }
+        if (translatedAt == null) {
+            translatedAt = now;
+        }
+    }
 }

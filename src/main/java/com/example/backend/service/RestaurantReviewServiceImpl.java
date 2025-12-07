@@ -62,9 +62,7 @@ public class RestaurantReviewServiceImpl implements RestaurantReviewService {
         review.setAuthor(user);
         review.setRestaurant(restaurant);
         review.setRating(request.getRating());
-        review.setRatingGoodReason(request.getRatingGoodReason());
-        review.setRatingBadReason(request.getRatingBadReason());
-        review.setRatingOtherReason(request.getRatingOtherReason());
+        review.setReason(request.getReason());
 
         var now = OffsetDateTime.now();
         review.setCreatedAt(now);
@@ -91,14 +89,8 @@ public class RestaurantReviewServiceImpl implements RestaurantReviewService {
         if (request.getRating() != null) {
             review.setRating(request.getRating());
         }
-        if (request.getRatingGoodReason() != null) {
-            review.setRatingGoodReason(request.getRatingGoodReason());
-        }
-        if (request.getRatingBadReason() != null) {
-            review.setRatingBadReason(request.getRatingBadReason());
-        }
-        if (request.getRatingOtherReason() != null) {
-            review.setRatingOtherReason(request.getRatingOtherReason());
+        if (request.getReason() != null) {
+            review.setReason(request.getReason());
         }
 
         review.setUpdatedAt(OffsetDateTime.now());

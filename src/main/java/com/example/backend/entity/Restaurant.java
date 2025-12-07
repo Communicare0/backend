@@ -2,14 +2,22 @@ package com.example.backend.entity;
 
 import com.example.backend.entity.enums.*;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Builder
 @Data
 @Entity
 @Table(name = "restaurants", schema = "communicare")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Restaurant {
     @Id
     @Column(name="restaurant_id", columnDefinition = "uuid")
@@ -22,11 +30,23 @@ public class Restaurant {
     private String googleMapUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        nullable = false,
+        name = "restaurant_status",
+        columnDefinition = "communicare.restaurant_status"
+    )
+    @Builder.Default
     private RestaurantStatus status = RestaurantStatus.VISIBLE;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(
+        nullable = false,
+        name = "restaurant_type",
+        columnDefinition = "communicare.restaurant_type"
+    )
+    @Builder.Default
     private RestaurantType restaurantType = RestaurantType.NONE;
 
     private Integer ratingCount;

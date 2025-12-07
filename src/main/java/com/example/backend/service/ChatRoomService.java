@@ -14,4 +14,6 @@ public interface ChatRoomService {
     List<ChatRoomMember> getMembersByRoomId(UUID chatRoomId);
 
     List<ChatRoom> getMyRooms(UUID userId);
+
+    void leaveChatRoom(UUID userId, UUID chatRoomId);
 }

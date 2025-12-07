@@ -125,4 +125,30 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+     @Override
+    public void leaveChatRoom(UUID userId, UUID chatRoomId) {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        // 1) 유저가 이 방의 멤버인지 확인
+        ChatRoomMember membership = chatRoomMemberRepository
+                .findByChatRoom_ChatRoomIdAndUser_UserIdAndDeletedAtIsNull(chatRoomId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방의 멤버가 아닙니다."));
+
+        // 2) 멤버십 soft delete (deletedAt만 채우는 방식)
+        membership.setDeletedAt(now);
+        membership.setUpdatedAt(now);
+
+        // 3) 남은 멤버 수 확인 (soft delete 기준으로)
+        long remainingCount = chatRoomMemberRepository
+                .countByChatRoom_ChatRoomIdAndDeletedAtIsNull(chatRoomId);
+
+        if (remainingCount == 0) {
+            ChatRoom room = membership.getChatRoom();
+            room.setDeletedAt(now);
+            room.setStatus(ChatRoomStatus.DELETED); 
+            room.setUpdatedAt(now);
+
+        }
+    }
 }

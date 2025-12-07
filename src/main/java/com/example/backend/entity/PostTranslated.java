@@ -35,7 +35,7 @@ public class PostTranslated {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(
-        name = "status",
+        name = "language",
         nullable = false,
         columnDefinition = "communicare.language"
     )

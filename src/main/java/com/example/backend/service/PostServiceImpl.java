@@ -198,9 +198,12 @@ public class PostServiceImpl implements PostService {
         OffsetDateTime now = OffsetDateTime.now();
 
         // soft delete 방식
-        like.setDeletedAt(now);
-        like.setUpdatedAt(now);
-        postLikeRepository.save(like);
+        //like.setDeletedAt(now);
+        //like.setUpdatedAt(now);
+        //postLikeRepository.save(like);
+
+        //hard delete 방식
+        postLikeRepository.delete(like);
 
         // likeCount 감소 (음수 방지)
         int currentLikeCount = post.getLikeCount();

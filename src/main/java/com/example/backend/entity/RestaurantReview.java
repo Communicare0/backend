@@ -32,14 +32,8 @@ public class RestaurantReview {
     @Column(nullable = false)
     private Integer rating; // 1~5
 
-    @Enumerated(EnumType.STRING)
-    private RatingGoodReason ratingGoodReason;
-
-    @Enumerated(EnumType.STRING)
-    private RatingBadReason ratingBadReason;
-
     @Column(columnDefinition = "text")
-    private String ratingOtherReason;
+    private String reason;
 
     @Column(nullable = false)
     private OffsetDateTime createdAt;

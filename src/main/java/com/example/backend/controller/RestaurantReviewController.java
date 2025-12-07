@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,17 @@ public class RestaurantReviewController {
 
     public RestaurantReviewController(RestaurantReviewService restaurantReviewService) {
         this.restaurantReviewService = restaurantReviewService;
+    }
+
+    private UUID getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = authentication != null ? authentication.getPrincipal() : null;
+
+        if (principal instanceof UUID uuid) {
+            return uuid;
+        }
+
+        throw new IllegalStateException("인증 정보에서 사용자 ID를 찾을 수 없습니다.");
     }
 
 
@@ -76,16 +88,22 @@ public class RestaurantReviewController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
         }
     )
-    public ResponseEntity<List<RestaurantReviewResponse>> getUserReviews(Authentication authentication) {
-        UUID userId = (UUID) authentication.getPrincipal();
-        List<RestaurantReview> reviews = restaurantReviewService.findReviewsByUserId(userId);
+    public ResponseEntity<List<RestaurantReviewResponse>> getUserReviews() {
+        try {
+            UUID userId = getCurrentUserId();
+            List<RestaurantReview> reviews = restaurantReviewService.findReviewsByUserId(userId);
 
-        List<RestaurantReviewResponse> response =
-            reviews.stream()
-                    .map(RestaurantReviewResponse::fromEntity)
-                    .toList();
+            List<RestaurantReviewResponse> response =
+                reviews.stream()
+                        .map(RestaurantReviewResponse::fromEntity)
+                        .toList();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/{reviewId}")
@@ -123,7 +141,7 @@ public class RestaurantReviewController {
     @Operation(
         summary = "리뷰 생성",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "restaurantId, rating, ratingGoodReason, ratingBadReason, ratingOtherReason",
+            description = "restaurantId, rating, reason",
             required = true,
             content = @Content(schema = @Schema(implementation = CreateRestaurantReviewRequest.class))
         ),
@@ -139,7 +157,6 @@ public class RestaurantReviewController {
         }
     )
     public ResponseEntity<RestaurantReviewResponse> createReview(
-            Authentication authentication,
             @RequestBody CreateRestaurantReviewRequest request
     ) {
         try {
@@ -152,12 +169,14 @@ public class RestaurantReviewController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            UUID userId = (UUID) authentication.getPrincipal();
+            UUID userId = getCurrentUserId();
 
             RestaurantReview created = restaurantReviewService.createReview(userId, request);
             RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(created);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -189,7 +208,6 @@ public class RestaurantReviewController {
         }
     )
     public ResponseEntity<RestaurantReviewResponse> updateReview(
-            Authentication authentication,
             @PathVariable UUID reviewId,
             @RequestBody UpdateRestaurantReviewRequest request
     ) {
@@ -203,7 +221,7 @@ public class RestaurantReviewController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            UUID userId = (UUID) authentication.getPrincipal();
+            UUID userId = getCurrentUserId();
 
             RestaurantReview updated = restaurantReviewService.updateReview(userId, reviewId, request);
             if (updated == null) {
@@ -212,6 +230,8 @@ public class RestaurantReviewController {
 
             RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(updated);
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -235,7 +255,6 @@ public class RestaurantReviewController {
         }
     )
     public ResponseEntity<Void> deleteReview(
-            Authentication authentication,
             @PathVariable UUID reviewId
     ) {
         try {
@@ -243,10 +262,12 @@ public class RestaurantReviewController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
-            UUID userId = (UUID) authentication.getPrincipal();
+            UUID userId = getCurrentUserId();
 
             restaurantReviewService.deleteReview(userId, reviewId);
             return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

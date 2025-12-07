@@ -1,8 +1,6 @@
 package com.example.backend.dto.response;
 
 import com.example.backend.entity.RestaurantReview;
-import com.example.backend.entity.enums.RatingBadReason;
-import com.example.backend.entity.enums.RatingGoodReason;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,9 +16,7 @@ public class RestaurantReviewResponse {
     private UUID restaurantId;
     private UUID authorId;
     private Integer rating;
-    private RatingGoodReason ratingGoodReason;
-    private RatingBadReason ratingBadReason;
-    private String ratingOtherReason;
+    private String reason;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -30,9 +26,7 @@ public class RestaurantReviewResponse {
             restaurantReview.getRestaurant().getRestaurantId(),
             restaurantReview.getAuthor().getUserId(),
             restaurantReview.getRating(),
-            restaurantReview.getRatingGoodReason(),
-            restaurantReview.getRatingBadReason(),
-            restaurantReview.getRatingOtherReason(),
+            restaurantReview.getReason(),
             restaurantReview.getCreatedAt(),
             restaurantReview.getUpdatedAt()
         );

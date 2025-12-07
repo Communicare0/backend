@@ -1,6 +1,7 @@
 package com.example.backend.dto.response;
 
 import com.example.backend.entity.Post;
+import com.example.backend.entity.enums.Nationality;
 import com.example.backend.entity.enums.PostCategory;
 import com.example.backend.entity.enums.PostStatus;
 import jakarta.validation.constraints.NotNull;
@@ -18,8 +19,9 @@ public class PostResponse {
   @NotNull
   private UUID postId;
 
-  @NotNull
-  private UUID userId;
+  private String authorDepartment;   // 작성자 학과
+  private String authorStudentYear;  // 예: "21학번"
+  private Nationality authorNationality; // 작성자 국적
 
   private String title;
 
@@ -44,10 +46,36 @@ public class PostResponse {
   @NotNull
   private OffsetDateTime updatedAt;
 
+ private static String maskStudentIdToYear(String studentId) {
+    if (studentId == null) {
+      return null;
+    }
+
+    if (studentId.length() >= 4) {
+      try {
+        String yearStr = studentId.substring(0, 4);   // ex: "2021"
+        int year = Integer.parseInt(yearStr);
+        int shortYear = year % 100;                   // ex: 21
+        return shortYear + "학번";
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+
+    return null;
+  } 
+
   public static PostResponse fromEntity(Post post) {
     PostResponse response = new PostResponse();
+    
+    // 작성자 정보
+    if (post.getAuthor() != null) {
+      response.setAuthorDepartment(post.getAuthor().getDepartment());
+      response.setAuthorStudentYear(maskStudentIdToYear(post.getAuthor().getStudentId()));
+      response.setAuthorNationality(post.getAuthor().getNationality());
+    }
+    
     response.setPostId(post.getPostId());
-    response.setUserId(post.getAuthor().getUserId());
     response.setTitle(post.getTitle());
     response.setContent(post.getContent());
     response.setCategory(post.getCategory());

@@ -5,6 +5,7 @@ import com.example.backend.dto.request.UpdateRestaurantRequest;
 import com.example.backend.dto.response.RestaurantResponse;
 import com.example.backend.entity.Restaurant;
 import com.example.backend.entity.User;
+import com.example.backend.entity.enums.Nationality;
 import com.example.backend.entity.enums.PreferredFoodType;
 import com.example.backend.entity.enums.RestaurantStatus;
 import com.example.backend.entity.enums.RestaurantType;
@@ -15,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -94,8 +97,22 @@ public class RestaurantServiceImpl implements RestaurantService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다: " + userId));
 
+        Map<Nationality, RestaurantType> nationalityToType = new HashMap<>();
+
+        nationalityToType.put(Nationality.KOREAN, RestaurantType.KOREA);
+        nationalityToType.put(Nationality.CHINESE, RestaurantType.CHINA);
+        nationalityToType.put(Nationality.JAPANESE, RestaurantType.JAPAN);
+        nationalityToType.put(Nationality.VIETNAMESE, RestaurantType.VIETNAM);
+
+        RestaurantType preferredRestaurantType = RestaurantType.NONE;
         // 사용자의 선호 음식 타입을 RestaurantType으로 변환
-        RestaurantType preferredRestaurantType = convertToRestaurantType(user.getPreferredFoodType());
+        if (user.getPreferredFoodType() != PreferredFoodType.NONE) {
+            preferredRestaurantType = convertToRestaurantType(user.getPreferredFoodType());
+        } else if (
+            user.getNationality() == Nationality.KOREAN || user.getNationality() == Nationality.CHINESE || user.getNationality() == Nationality.JAPANESE || user.getNationality() == Nationality.VIETNAMESE
+        ) {
+            preferredRestaurantType = nationalityToType.get(user.getNationality());
+        }
 
         // 추천 순서로 레스토랑 조회
         List<Restaurant> restaurants = restaurantRepository.findByRecommendedOrder(

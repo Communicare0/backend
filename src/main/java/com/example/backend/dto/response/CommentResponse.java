@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.example.backend.entity.Comment;
+import com.example.backend.entity.enums.Nationality;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,14 +17,44 @@ public class CommentResponse {
     private UUID commentId;
     private UUID postId;
     private String content;
-    private UUID authorId;
+
+    private String authorDepartment;       
+    private String authorStudentYear;      
+    private Nationality authorNationality;
+
+    private static String maskStudentIdToYear(String studentId) {
+        if (studentId == null) return null;
+
+        if (studentId.length() >= 4) {
+            try {
+                String yearStr = studentId.substring(0, 4);   // "2021"
+                int year = Integer.parseInt(yearStr);
+                int shortYear = year % 100;                  // 21
+                return shortYear + "학번";
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
 
     public static CommentResponse fromEntity(Comment comment) {
-        return new CommentResponse(
-            comment.getCommentId(),
-            comment.getPost().getPostId(),
-            comment.getContent(),
-            comment.getAuthor().getUserId()
-        );
+        
+        CommentResponse response = new CommentResponse();
+
+        var author = comment.getAuthor();
+
+        response.setCommentId(comment.getCommentId());
+        response.setPostId(comment.getPost().getPostId());
+        response.setContent(comment.getContent());
+
+        if (author != null) {
+            response.setAuthorDepartment(author.getDepartment());
+            response.setAuthorStudentYear(maskStudentIdToYear(author.getStudentId()));
+            response.setAuthorNationality(author.getNationality());
+        }
+
+        return response;
     }
 }

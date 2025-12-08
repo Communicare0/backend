@@ -70,8 +70,12 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .filter(r -> r.getStatus() == RestaurantStatus.VISIBLE)
                 .orElseThrow(() -> new EntityNotFoundException("레스토랑을 찾을 수 없습니다: " + restaurantId));
 
-        restaurant.setName(request.getName());
-        restaurant.setGoogleMapUrl(request.getGoogleMapUrl());
+        if (request.getName() != null) {
+            restaurant.setName(request.getName());
+        }
+        if (request.getGoogleMapUrl() != null) {
+            restaurant.setGoogleMapUrl(request.getGoogleMapUrl());
+        }
         if (request.getRestaurantType() != null) {
             restaurant.setRestaurantType(request.getRestaurantType());
         }

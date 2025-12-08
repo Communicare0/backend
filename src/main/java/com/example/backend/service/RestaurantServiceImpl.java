@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setStatus(RestaurantStatus.VISIBLE);
         restaurant.setRatingCount(0);
         restaurant.setRatingSum(0);
-        restaurant.setAvgRating(null);
+        restaurant.setAvgRating(BigDecimal.valueOf(0));
 
         Restaurant savedRestaurant = restaurantRepository.save(restaurant);
         return RestaurantResponse.fromEntity(savedRestaurant);

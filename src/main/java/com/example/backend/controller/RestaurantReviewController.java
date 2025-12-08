@@ -1,11 +1,15 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.CreateRestaurantReviewRequest;
+import com.example.backend.dto.request.UpdateRestaurantRequest;
 import com.example.backend.dto.request.UpdateRestaurantReviewRequest;
+import com.example.backend.dto.response.RestaurantResponse;
 import com.example.backend.dto.response.RestaurantReviewListResponse;
 import com.example.backend.dto.response.RestaurantReviewResponse;
+import com.example.backend.entity.Restaurant;
 import com.example.backend.entity.RestaurantReview;
 import com.example.backend.service.RestaurantReviewService;
+import com.example.backend.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,11 +31,15 @@ import java.util.UUID;
 @RequestMapping("/v1/restaurantReviews")
 @Tag(name = "RestaurantReview", description = "RestaurantReview API")
 public class RestaurantReviewController {
-
     private final RestaurantReviewService restaurantReviewService;
+    private final RestaurantService restaurantService;
 
-    public RestaurantReviewController(RestaurantReviewService restaurantReviewService) {
+    public RestaurantReviewController(
+        RestaurantReviewService restaurantReviewService,
+        RestaurantService restaurantService
+    ) {
         this.restaurantReviewService = restaurantReviewService;
+        this.restaurantService = restaurantService;
     }
 
     private UUID getCurrentUserId() {
@@ -174,6 +184,12 @@ public class RestaurantReviewController {
             RestaurantReview created = restaurantReviewService.createReview(userId, request);
             RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(created);
 
+            RestaurantResponse restaurant = restaurantService.getRestaurantById(request.getRestaurantId());
+            UpdateRestaurantRequest updateRestaurantRequest = getUpdateRestaurantRequest(1, restaurant, response);
+
+            restaurantService.updateRestaurant(restaurant.getRestaurantId(), updateRestaurantRequest);
+
+
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -229,12 +245,31 @@ public class RestaurantReviewController {
             }
 
             RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(updated);
+
+            RestaurantResponse restaurant = restaurantService.getRestaurantById(updated.getRestaurant().getRestaurantId());
+            UpdateRestaurantRequest updateRestaurantRequest = getUpdateRestaurantRequest(0, restaurant, response);
+            restaurantService.updateRestaurant(restaurant.getRestaurantId(), updateRestaurantRequest);
             return ResponseEntity.ok(response);
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private static UpdateRestaurantRequest getUpdateRestaurantRequest(Integer addNum, RestaurantResponse restaurant, RestaurantReviewResponse response) {
+        UpdateRestaurantRequest updateRestaurantRequest = new UpdateRestaurantRequest();
+        updateRestaurantRequest.setRatingCount(restaurant.getRatingCount() + addNum);
+        updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() + response.getRating());
+        updateRestaurantRequest.setAvgRating(
+            (
+                restaurant.getAvgRating()
+                    .multiply(BigDecimal.valueOf(restaurant.getRatingCount() - 1 + addNum))
+                    .add(BigDecimal.valueOf(response.getRating())
+                        .divide(BigDecimal.valueOf(restaurant.getRatingCount() + addNum), 3, RoundingMode.HALF_EVEN))
+            )
+        );  // 뭔가 복잡해보이지만 big decimal을 쓰려면 어쩔 수가 없었어요 ㅠㅠ
+        return updateRestaurantRequest;
     }
 
     @DeleteMapping("/{reviewId}")
@@ -264,7 +299,28 @@ public class RestaurantReviewController {
 
             UUID userId = getCurrentUserId();
 
+            Integer deleteRating = restaurantReviewService.getReviewById(reviewId).getRating();
+            UUID restaurantId = restaurantReviewService.getReviewById(reviewId).getRestaurant().getRestaurantId();
             restaurantReviewService.deleteReview(userId, reviewId);
+
+            RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
+
+            UpdateRestaurantRequest updateRestaurantRequest = new UpdateRestaurantRequest();
+            if (restaurant.getRatingCount() > 0) {
+                updateRestaurantRequest.setRatingCount(restaurant.getRatingCount() - 1);
+                updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() - deleteRating);
+                updateRestaurantRequest.setAvgRating(
+                    BigDecimal.valueOf(updateRestaurantRequest.getRatingSum())
+                        .divide(BigDecimal.valueOf(updateRestaurantRequest.getRatingCount()), 3, RoundingMode.HALF_EVEN)
+                );
+            } else {
+                updateRestaurantRequest.setRatingCount(0);
+                updateRestaurantRequest.setRatingSum(0);
+                updateRestaurantRequest.setAvgRating(BigDecimal.valueOf(0));
+            }
+
+            restaurantService.updateRestaurant(restaurantId, updateRestaurantRequest);
+
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

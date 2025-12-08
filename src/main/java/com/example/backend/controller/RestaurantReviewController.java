@@ -1,11 +1,15 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.request.CreateRestaurantReviewRequest;
+import com.example.backend.dto.request.UpdateRestaurantRequest;
 import com.example.backend.dto.request.UpdateRestaurantReviewRequest;
+import com.example.backend.dto.response.RestaurantResponse;
 import com.example.backend.dto.response.RestaurantReviewListResponse;
 import com.example.backend.dto.response.RestaurantReviewResponse;
+import com.example.backend.entity.Restaurant;
 import com.example.backend.entity.RestaurantReview;
 import com.example.backend.service.RestaurantReviewService;
+import com.example.backend.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,11 +29,15 @@ import java.util.UUID;
 @RequestMapping("/v1/restaurantReviews")
 @Tag(name = "RestaurantReview", description = "RestaurantReview API")
 public class RestaurantReviewController {
-
     private final RestaurantReviewService restaurantReviewService;
+    private final RestaurantService restaurantService;
 
-    public RestaurantReviewController(RestaurantReviewService restaurantReviewService) {
+    public RestaurantReviewController(
+        RestaurantReviewService restaurantReviewService,
+        RestaurantService restaurantService
+    ) {
         this.restaurantReviewService = restaurantReviewService;
+        this.restaurantService = restaurantService;
     }
 
     private UUID getCurrentUserId() {
@@ -173,6 +181,12 @@ public class RestaurantReviewController {
 
             RestaurantReview created = restaurantReviewService.createReview(userId, request);
             RestaurantReviewResponse response = RestaurantReviewResponse.fromEntity(created);
+
+            RestaurantResponse restaurant = restaurantService.getRestaurantById(request.getRestaurantId());
+            UpdateRestaurantRequest updateRestaurantRequest = new UpdateRestaurantRequest();
+
+            List<RestaurantReview> reviews = restaurantReviewService.findReviewsByRestaurantId(request.getRestaurantId());
+
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalStateException e) {

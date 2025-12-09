@@ -55,7 +55,7 @@ public class User {
         columnDefinition = "communicare.nationality"
     )
     @Builder.Default
-    private Nationality nationality = Nationality.KOREAN;
+    private Nationality nationality = Nationality.NONE;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

@@ -263,10 +263,10 @@ public class RestaurantReviewController {
         updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() + response.getRating());
         updateRestaurantRequest.setAvgRating(
             (
-                restaurant.getAvgRating()
-                    .multiply(BigDecimal.valueOf(restaurant.getRatingCount() - 1 + addNum))
-                    .add(BigDecimal.valueOf(response.getRating())
-                        .divide(BigDecimal.valueOf(restaurant.getRatingCount() + addNum), 3, RoundingMode.HALF_EVEN))
+                ((restaurant.getAvgRating()
+                    .multiply(BigDecimal.valueOf(restaurant.getRatingCount() - 1 + addNum)))
+                    .add(BigDecimal.valueOf(response.getRating())))
+                        .divide(BigDecimal.valueOf(restaurant.getRatingCount() + addNum), 3, RoundingMode.HALF_EVEN)
             )
         );  // 뭔가 복잡해보이지만 big decimal을 쓰려면 어쩔 수가 없었어요 ㅠㅠ
         return updateRestaurantRequest;

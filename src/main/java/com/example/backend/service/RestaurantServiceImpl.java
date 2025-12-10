@@ -32,8 +32,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public List<RestaurantResponse> getAllRestaurants() {
-        return restaurantRepository.findAll().stream()
-                .filter(restaurant -> restaurant.getStatus() == RestaurantStatus.VISIBLE)
+        return restaurantRepository.findAllOrderByRatingDesc(RestaurantStatus.VISIBLE).stream()
                 .map(RestaurantResponse::fromEntity)
                 .collect(Collectors.toList());
     }

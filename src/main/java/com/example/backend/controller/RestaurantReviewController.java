@@ -260,7 +260,7 @@ public class RestaurantReviewController {
     private static UpdateRestaurantRequest getUpdateRestaurantRequest(Integer addNum, RestaurantResponse restaurant, RestaurantReviewResponse response) {
         UpdateRestaurantRequest updateRestaurantRequest = new UpdateRestaurantRequest();
         updateRestaurantRequest.setRatingCount(restaurant.getRatingCount() + addNum);
-        updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() + response.getRating());
+        updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() + (response.getRating() * addNum));
         updateRestaurantRequest.setAvgRating(
             (
                 ((restaurant.getAvgRating()

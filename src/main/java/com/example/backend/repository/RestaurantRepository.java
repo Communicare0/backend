@@ -19,4 +19,8 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
             @Param("status") RestaurantStatus status,
             @Param("preferredType") RestaurantType preferredType
     );
+
+    @Query("SELECT r FROM Restaurant r WHERE r.status = :status ORDER BY " +
+           "COALESCE(r.avgRating, 0) DESC, r.createdAt DESC")
+    List<Restaurant> findAllOrderByRatingDesc(@Param("status") RestaurantStatus status);
 }

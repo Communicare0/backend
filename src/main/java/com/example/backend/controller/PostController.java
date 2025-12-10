@@ -435,4 +435,104 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/search")
+    @Operation(
+        summary = "Search posts by keyword",
+        description = "검색 키워드가 제목이나 내용에 포함된 게시글을 검색합니다.",
+        parameters = {
+            @Parameter(
+                name = "keyword",
+                description = "검색할 키워드 (제목이나 내용에 포함된 문자열)",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "검색된 게시글 목록",
+                content = @Content(schema = @Schema(implementation = PostResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 검색 키워드"
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류"
+            )
+        }
+    )
+    public ResponseEntity<List<PostResponse>> searchPosts(
+        @RequestParam("keyword") String keyword
+    ) {
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            List<Post> posts = postService.searchPosts(keyword);
+
+            List<PostResponse> responses = posts.stream()
+                    .map(PostResponse::fromEntity)
+                    .toList();
+
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/search/category/{category}")
+    @Operation(
+        summary = "Search posts by keyword in specific category",
+        description = "특정 카테고리에서 검색 키워드가 제목이나 내용에 포함된 게시글을 검색합니다.",
+        parameters = {
+            @Parameter(
+                name = "category",
+                description = "게시글 카테고리 (GENERAL, QNA, NOTICE 등)",
+                required = true
+            ),
+            @Parameter(
+                name = "keyword",
+                description = "검색할 키워드 (제목이나 내용에 포함된 문자열)",
+                required = true
+            )
+        },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "검색된 게시글 목록",
+                content = @Content(schema = @Schema(implementation = PostResponse.class))
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "유효하지 않은 파라미터"
+            ),
+            @ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류"
+            )
+        }
+    )
+    public ResponseEntity<List<PostResponse>> searchPostsByCategory(
+        @PathVariable PostCategory category,
+        @RequestParam("keyword") String keyword
+    ) {
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            List<Post> posts = postService.searchPostsByCategory(keyword, category);
+
+            List<PostResponse> responses = posts.stream()
+                    .map(PostResponse::fromEntity)
+                    .toList();
+
+            return ResponseEntity.ok(responses);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

@@ -79,6 +79,15 @@ public class RestaurantServiceImpl implements RestaurantService {
         if (request.getRestaurantType() != null) {
             restaurant.setRestaurantType(request.getRestaurantType());
         }
+        if (request.getRatingCount() != null) {
+            restaurant.setRatingCount(request.getRatingCount());
+        }
+        if (request.getRatingSum() != null) {
+            restaurant.setRatingSum(request.getRatingSum());
+        }
+        if (request.getAvgRating() != null) {
+            restaurant.setAvgRating(request.getAvgRating());
+        }
 
         Restaurant updatedRestaurant = restaurantRepository.save(restaurant);
         return RestaurantResponse.fromEntity(updatedRestaurant);

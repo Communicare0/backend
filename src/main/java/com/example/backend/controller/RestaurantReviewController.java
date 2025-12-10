@@ -306,7 +306,7 @@ public class RestaurantReviewController {
             RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
 
             UpdateRestaurantRequest updateRestaurantRequest = new UpdateRestaurantRequest();
-            if (restaurant.getRatingCount() > 0) {
+            if (restaurant.getRatingCount() - 1 > 0) {
                 updateRestaurantRequest.setRatingCount(restaurant.getRatingCount() - 1);
                 updateRestaurantRequest.setRatingSum(restaurant.getRatingSum() - deleteRating);
                 updateRestaurantRequest.setAvgRating(

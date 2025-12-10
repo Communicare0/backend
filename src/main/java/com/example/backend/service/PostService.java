@@ -24,6 +24,10 @@ public interface PostService {
     void deletePost(UUID userId, UUID postId);
 
     Post likePost(UUID userId, UUID postId);
-    
+
     Post unlikePost(UUID userId, UUID postId);
+
+    List<Post> searchPosts(String keyword);
+
+    List<Post> searchPostsByCategory(String keyword, PostCategory category);
 }

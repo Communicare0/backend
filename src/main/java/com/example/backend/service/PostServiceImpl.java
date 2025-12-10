@@ -212,4 +212,22 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.save(post);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> searchPosts(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return postRepository.findByKeyword(keyword.trim());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> searchPostsByCategory(String keyword, PostCategory category) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return postRepository.findByKeywordAndCategory(keyword.trim(), category);
+    }
 }

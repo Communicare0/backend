@@ -393,7 +393,8 @@ public class PostController {
 
         try {
             Post likedPost = postService.likePost(userId, id);
-            PostResponse response = PostResponse.fromEntity(likedPost);
+            boolean likedByCurrentUser = postService.hasUserLikedPost(userId, id);
+            PostResponse response = PostResponse.fromEntity(likedPost, likedByCurrentUser);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -431,6 +432,8 @@ public class PostController {
         try {
             Post unlikedPost = postService.unlikePost(userId, id);
             PostResponse response = PostResponse.fromEntity(unlikedPost);
+            boolean likedByCurrentUser = false;
+            
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

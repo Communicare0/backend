@@ -48,6 +48,8 @@ public class PostResponse {
   @NotNull
   private OffsetDateTime updatedAt;
 
+  private boolean likedByCurrentUser;
+
  private static String maskStudentIdToYear(String studentId) {
     if (studentId == null) {
       return null;
@@ -75,6 +77,7 @@ public class PostResponse {
       response.setAuthorDepartment(post.getAuthor().getDepartment());
       response.setAuthorStudentYear(maskStudentIdToYear(post.getAuthor().getStudentId()));
       response.setAuthorNationality(post.getAuthor().getNationality());
+      response.setAuthorId(post.getAuthor().getUserId());
     }
     
     response.setPostId(post.getPostId());
@@ -88,6 +91,15 @@ public class PostResponse {
     response.setCreatedAt(post.getCreatedAt());
     response.setUpdatedAt(post.getUpdatedAt());
     response.setAuthorId(post.getAuthor().getUserId());
+
+    response.setLikedByCurrentUser(false);
+    
+    return response;
+  }
+
+  public static PostResponse fromEntity(Post post, boolean likedByCurrentUser) {
+    PostResponse response = fromEntity(post);
+    response.setLikedByCurrentUser(likedByCurrentUser);
     return response;
   }
 }

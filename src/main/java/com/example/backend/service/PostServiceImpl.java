@@ -215,6 +215,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public boolean hasUserLikedPost(UUID userId, UUID postId) {
-        return postLikeRepository.existsByUserIdAndPostIdAndDeletedAtIsNull(userId, postId);
-    }
+        return postLikeRepository
+            .existsByUser_UserIdAndPost_PostIdAndDeletedAtIsNull(userId, postId);
+    } 
 }

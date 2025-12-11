@@ -125,7 +125,10 @@ public class PostController {
         }
 
         Post post = postService.getPostById(id);
-        PostResponse postResponse = PostResponse.fromEntity(post);
+
+        boolean likedByCurrentUser = postService.hasUserLikedPost(userId, id);
+
+        PostResponse postResponse = PostResponse.fromEntity(post, likedByCurrentUser);
         return ResponseEntity.ok(postResponse);
     }
 

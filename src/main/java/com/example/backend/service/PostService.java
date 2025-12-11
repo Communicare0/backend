@@ -26,4 +26,6 @@ public interface PostService {
     Post likePost(UUID userId, UUID postId);
     
     Post unlikePost(UUID userId, UUID postId);
+
+    boolean hasUserLikedPost(UUID userId, UUID postId);
 }

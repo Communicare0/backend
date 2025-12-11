@@ -212,4 +212,9 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.save(post);
     }
+
+    @Override
+    public boolean hasUserLikedPost(UUID userId, UUID postId) {
+        return postLikeRepository.existsByUserIdAndPostIdAndDeletedAtIsNull(userId, postId);
+    }
 }

@@ -23,7 +23,7 @@
 └── settings.gradle       # 프로젝트 빌드 설정
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
